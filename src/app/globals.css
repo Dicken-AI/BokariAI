@@ -1,16 +1,16 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@font-face {
-  font-family: 'PP Editorial';
-  src: url('/fonts/pp-ed-ul.otf') format('opentype');
-  font-weight: 300;
-  font-style: normal;
-  font-display: swap;
-}
-
 @layer base {
+  :root {
+    --bokari-primary: 20 184 166;
+    --bokari-accent: 212 180 131;
+    --radius: 0.75rem;
+  }
+
   .overflow-hidden-scrollable {
     -ms-overflow-style: none;
   }
@@ -21,12 +21,12 @@
 
   * {
     scrollbar-width: thin;
-    scrollbar-color: #e8edf1 transparent; /* light-200 */
+    scrollbar-color: rgba(0,0,0,0.08) transparent;
   }
 
   *::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
 
   *::-webkit-scrollbar-track {
@@ -34,49 +34,32 @@
   }
 
   *::-webkit-scrollbar-thumb {
-    background: #e8edf1; /* light-200 */
-    border-radius: 3px;
-    transition: background 0.2s ease;
+    background: rgba(0,0,0,0.08);
+    border-radius: 4px;
   }
 
   *::-webkit-scrollbar-thumb:hover {
-    background: #d0d7de; /* light-300 */
+    background: rgba(0,0,0,0.14);
   }
 
-  @media (prefers-color-scheme: dark) {
-    * {
-      scrollbar-color: #21262d transparent; /* dark-200 */
-    }
-
-    *::-webkit-scrollbar-thumb {
-      background: #21262d; /* dark-200 */
-    }
-
-    *::-webkit-scrollbar-thumb:hover {
-      background: #30363d; /* dark-300 */
-    }
+  .dark * {
+    scrollbar-color: rgba(255,255,255,0.06) transparent;
   }
 
-  :root.dark *,
-  html.dark *,
-  body.dark * {
-    scrollbar-color: #21262d transparent; /* dark-200 */
+  .dark *::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.06);
   }
 
-  :root.dark *::-webkit-scrollbar-thumb,
-  html.dark *::-webkit-scrollbar-thumb,
-  body.dark *::-webkit-scrollbar-thumb {
-    background: #21262d; /* dark-200 */
-  }
-
-  :root.dark *::-webkit-scrollbar-thumb:hover,
-  html.dark *::-webkit-scrollbar-thumb:hover,
-  body.dark *::-webkit-scrollbar-thumb:hover {
-    background: #30363d; /* dark-300 */
+  .dark *::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.1);
   }
 
   html {
     scroll-behavior: smooth;
+  }
+
+  ::selection {
+    background: rgba(20, 184, 166, 0.15);
   }
 }
 
@@ -88,6 +71,14 @@
     line-clamp: 2;
     overflow: hidden;
   }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow: hidden;
+  }
 }
 
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
@@ -97,3 +88,179 @@
     font-size: 16px !important;
   }
 }
+
+/* ===== BOKARI DESIGN SYSTEM v2 ===== */
+
+/* Subtle grid pattern for home */
+.bokari-grid {
+  position: relative;
+}
+
+.bokari-grid::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(0,0,0,0.03) 1px, transparent 0);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.dark .bokari-grid::before {
+  background-image:
+    radial-gradient(circle at 1px 1px, rgba(255,255,255,0.03) 1px, transparent 0);
+}
+
+/* Glass panel */
+.bokari-glass {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.dark .bokari-glass {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Search input glow */
+.bokari-input-glow {
+  position: relative;
+  transition: box-shadow 0.3s ease;
+}
+
+.bokari-input-glow:focus-within {
+  box-shadow: 0 0 0 1px rgba(20, 184, 166, 0.3), 0 0 20px rgba(20, 184, 166, 0.08);
+}
+
+/* Floating gradient orbs for home hero */
+.bokari-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  pointer-events: none;
+  opacity: 0.4;
+  animation: float-orb 25s ease-in-out infinite;
+}
+
+@keyframes float-orb {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(20px, -20px) scale(1.03); }
+  66% { transform: translate(-15px, 15px) scale(0.97); }
+}
+
+/* Shimmer for loading states */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.bokari-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(0,0,0,0.04) 25%,
+    rgba(0,0,0,0.08) 50%,
+    rgba(0,0,0,0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.dark .bokari-shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255,255,255,0.03) 25%,
+    rgba(255,255,255,0.06) 50%,
+    rgba(255,255,255,0.03) 75%
+  );
+  background-size: 200% 100%;
+}
+
+/* Kente-inspired accent line */
+.bokari-accent-line {
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #14b8a6, #d4b483, #14b8a6, transparent);
+  border-radius: 1px;
+}
+
+/* Pulse dot for live indicators */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.bokari-pulse {
+  animation: pulse-dot 1.5s ease-in-out infinite;
+}
+
+/* Fade in animation */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.bokari-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+/* Source card hover */
+.source-card {
+  transition: all 0.2s ease;
+}
+
+.source-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+}
+
+.dark .source-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+/* Custom toggle */
+.bokari-toggle {
+  position: relative;
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #e5e7eb;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.dark .bokari-toggle {
+  background: #333;
+}
+
+.bokari-toggle.active {
+  background: #14b8a6;
+}
+
+.bokari-toggle::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: white;
+  transition: transform 0.3s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.bokari-toggle.active::after {
+  transform: translateX(16px);
+}
+
+/* Typing indicator */
+@keyframes typing {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-4px); opacity: 1; }
+}
+
+.typing-dot:nth-child(1) { animation: typing 1.2s infinite 0ms; }
+.typing-dot:nth-child(2) { animation: typing 1.2s infinite 200ms; }
+.typing-dot:nth-child(3) { animation: typing 1.2s infinite 400ms; }

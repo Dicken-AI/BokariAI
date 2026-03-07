@@ -1,81 +1,71 @@
-# Update Perplexica to the latest version
+# Mettre a jour Bokari
 
-To update Perplexica to the latest version, follow these steps:
-
-## For Docker users (Using pre-built images)
-
-Simply pull the latest image and restart your container:
+## Docker (images pre-construites)
 
 ```bash
-docker pull itzcrazykns1337/perplexica:latest
-docker stop perplexica
-docker rm perplexica
-docker run -d -p 3000:3000 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:latest
+docker pull dickenai/bokari:latest
+docker stop bokari
+docker rm bokari
+docker run -d -p 3000:3000 -v bokari-data:/home/bokari/data --name bokari dickenai/bokari:latest
 ```
 
-For slim version:
+Version slim (sans SearXNG integre) :
 
 ```bash
-docker pull itzcrazykns1337/perplexica:slim-latest
-docker stop perplexica
-docker rm perplexica
-docker run -d -p 3000:3000 -e SEARXNG_API_URL=http://your-searxng-url:8080 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:slim-latest
+docker pull dickenai/bokari:slim-latest
+docker stop bokari
+docker rm bokari
+docker run -d -p 3000:3000 -e SEARXNG_API_URL=http://votre-searxng:8080 -v bokari-data:/home/bokari/data --name bokari dickenai/bokari:slim-latest
 ```
 
-Once updated, go to http://localhost:3000 and verify the latest changes. Your settings are preserved automatically.
+## Docker (build depuis les sources)
 
-## For Docker users (Building from source)
-
-1. Navigate to your Perplexica directory and pull the latest changes:
+1. Allez dans le dossier Bokari et recuperez les derniers changements :
 
    ```bash
-   cd Perplexica
+   cd Bokari
    git pull origin master
    ```
 
-2. Rebuild the Docker image:
+2. Reconstruisez l'image :
 
    ```bash
-   docker build -t perplexica .
+   docker build -t bokari .
    ```
 
-3. Stop and remove the old container, then start the new one:
+3. Redemarrez le conteneur :
 
    ```bash
-   docker stop perplexica
-   docker rm perplexica
-   docker run -p 3000:3000 -p 8080:8080 --name perplexica perplexica
+   docker stop bokari
+   docker rm bokari
+   docker run -p 3000:3000 -p 8080:8080 --name bokari bokari
    ```
 
-4. Once the command completes, go to http://localhost:3000 and verify the latest changes.
+## Sans Docker
 
-## For non-Docker users
-
-1. Navigate to your Perplexica directory and pull the latest changes:
+1. Recuperez les derniers changements :
 
    ```bash
-   cd Perplexica
+   cd Bokari
    git pull origin master
    ```
 
-2. Install any new dependencies:
+2. Installez les nouvelles dependances :
 
    ```bash
    npm i
    ```
 
-3. Rebuild the application:
+3. Reconstruisez :
 
    ```bash
    npm run build
    ```
 
-4. Restart the application:
+4. Redemarrez :
 
    ```bash
    npm run start
    ```
 
-5. Go to http://localhost:3000 and verify the latest changes. Your settings are preserved automatically.
-
----
+5. Verifiez sur http://localhost:3000. Vos parametres sont conserves automatiquement.

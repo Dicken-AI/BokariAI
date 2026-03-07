@@ -1,5 +1,5 @@
 import formatChatHistoryAsString from '@/lib/utils/formatHistory';
-import { searchSearxng } from '@/lib/searxng';
+import { searchSearxng } from '@/lib/search';
 import {
   videoSearchFewShots,
   videoSearchPrompt,

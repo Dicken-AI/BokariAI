@@ -3,6 +3,17 @@ import { text, integer, sqliteTable } from 'drizzle-orm/sqlite-core';
 import { Block } from '../types';
 import { SearchSources } from '../agents/search/types';
 
+export const users = sqliteTable('users', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  email: text('email').notNull().unique(),
+  passwordHash: text('passwordHash').notNull(),
+  createdAt: text('createdAt').notNull(),
+  plan: text('plan').default('free'),
+  questionsToday: integer('questionsToday').default(0),
+  lastQuestionDate: text('lastQuestionDate'),
+});
+
 export const messages = sqliteTable('messages', {
   id: integer('id').primaryKey(),
   messageId: text('messageId').notNull(),
@@ -25,6 +36,7 @@ interface DBFile {
 
 export const chats = sqliteTable('chats', {
   id: text('id').primaryKey(),
+  userId: text('userId'),
   title: text('title').notNull(),
   createdAt: text('createdAt').notNull(),
   sources: text('sources', {

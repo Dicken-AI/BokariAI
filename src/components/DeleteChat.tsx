@@ -1,4 +1,4 @@
-import { Trash } from 'lucide-react';
+import { Trash, Loader2 } from 'lucide-react';
 import {
   Description,
   Dialog,
@@ -10,6 +10,7 @@ import {
 } from '@headlessui/react';
 import { Fragment, useState } from 'react';
 import { toast } from 'sonner';
+import { authFetch } from '@/lib/supabase/fetch';
 import { Chat } from '@/app/library/page';
 
 const DeleteChat = ({
@@ -29,11 +30,8 @@ const DeleteChat = ({
   const handleDelete = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`/api/chats/${chatId}`, {
+      const res = await authFetch(`/api/chats/${chatId}`, {
         method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        },
       });
 
       if (res.status != 200) {
@@ -58,12 +56,10 @@ const DeleteChat = ({
   return (
     <>
       <button
-        onClick={() => {
-          setConfirmationDialogOpen(true);
-        }}
-        className="bg-transparent text-red-400 hover:scale-105 transition duration-200"
+        onClick={() => setConfirmationDialogOpen(true)}
+        className="p-2 rounded-xl text-black/25 dark:text-white/20 hover:text-red-500 hover:bg-red-500/[0.04] transition-all duration-200"
       >
-        <Trash size={17} />
+        <Trash size={15} />
       </button>
       <Transition appear show={confirmationDialogOpen} as={Fragment}>
         <Dialog
@@ -75,41 +71,54 @@ const DeleteChat = ({
             }
           }}
         >
-          <DialogBackdrop className="fixed inset-0 bg-black/30" />
+          <TransitionChild
+            as={Fragment}
+            enter="ease-out duration-200"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-150"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <DialogBackdrop className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm" />
+          </TransitionChild>
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex min-h-full items-center justify-center p-4">
               <TransitionChild
                 as={Fragment}
                 enter="ease-out duration-200"
                 enterFrom="opacity-0 scale-95"
                 enterTo="opacity-100 scale-100"
                 leave="ease-in duration-100"
-                leaveFrom="opacity-100 scale-200"
+                leaveFrom="opacity-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="w-full max-w-md transform rounded-2xl bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200 p-6 text-left align-middle shadow-xl transition-all">
-                  <DialogTitle className="text-lg font-medium leading-6 dark:text-white">
-                    Delete Confirmation
+                <DialogPanel className="w-full max-w-sm transform rounded-2xl bg-white dark:bg-dark-100 border border-black/[0.08] dark:border-white/[0.08] p-6 shadow-elevated transition-all">
+                  <DialogTitle className="text-[16px] font-medium text-black/90 dark:text-white/90">
+                    Supprimer la conversation ?
                   </DialogTitle>
-                  <Description className="text-sm dark:text-white/70 text-black/70">
-                    Are you sure you want to delete this chat?
+                  <Description className="text-[14px] text-black/50 dark:text-white/40 mt-1.5">
+                    Cette action est irreversible. La conversation sera definitivement supprimee.
                   </Description>
-                  <div className="flex flex-row items-end justify-end space-x-4 mt-6">
+                  <div className="flex items-center justify-end gap-3 mt-6">
                     <button
                       onClick={() => {
-                        if (!loading) {
-                          setConfirmationDialogOpen(false);
-                        }
+                        if (!loading) setConfirmationDialogOpen(false);
                       }}
-                      className="text-black/50 dark:text-white/50 text-sm hover:text-black/70 hover:dark:text-white/70 transition duration-200"
+                      className="px-4 py-2 rounded-xl text-[13px] text-black/50 dark:text-white/40 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors"
                     >
-                      Cancel
+                      Annuler
                     </button>
                     <button
                       onClick={handleDelete}
-                      className="text-red-400 text-sm hover:text-red-500 transition duration200"
+                      disabled={loading}
+                      className="px-4 py-2 rounded-xl text-[13px] font-medium bg-red-500 text-white hover:bg-red-600 transition-colors disabled:opacity-50 shadow-sm"
                     >
-                      Delete
+                      {loading ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        'Supprimer'
+                      )}
                     </button>
                   </div>
                 </DialogPanel>

@@ -7,6 +7,7 @@ import {
   ChevronDown,
   ChevronUp,
   BookSearch,
+  Sparkles,
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useEffect, useState } from 'react';
@@ -15,16 +16,16 @@ import { useChat } from '@/lib/hooks/useChat';
 
 const getStepIcon = (step: ResearchBlockSubStep) => {
   if (step.type === 'reasoning') {
-    return <Brain className="w-4 h-4" />;
+    return <Brain className="w-3.5 h-3.5" />;
   } else if (step.type === 'searching' || step.type === 'upload_searching') {
-    return <Search className="w-4 h-4" />;
+    return <Search className="w-3.5 h-3.5" />;
   } else if (
     step.type === 'search_results' ||
     step.type === 'upload_search_results'
   ) {
-    return <FileText className="w-4 h-4" />;
+    return <FileText className="w-3.5 h-3.5" />;
   } else if (step.type === 'reading') {
-    return <BookSearch className="w-4 h-4" />;
+    return <BookSearch className="w-3.5 h-3.5" />;
   }
 
   return null;
@@ -35,20 +36,20 @@ const getStepTitle = (
   isStreaming: boolean,
 ): string => {
   if (step.type === 'reasoning') {
-    return isStreaming && !step.reasoning ? 'Thinking...' : 'Thinking';
+    return isStreaming && !step.reasoning ? 'Reflexion en cours...' : 'Reflexion';
   } else if (step.type === 'searching') {
-    return `Searching ${step.searching.length} ${step.searching.length === 1 ? 'query' : 'queries'}`;
+    return `Recherche de ${step.searching.length} ${step.searching.length === 1 ? 'requete' : 'requetes'}`;
   } else if (step.type === 'search_results') {
-    return `Found ${step.reading.length} ${step.reading.length === 1 ? 'result' : 'results'}`;
+    return `${step.reading.length} ${step.reading.length === 1 ? 'source trouvee' : 'sources trouvees'}`;
   } else if (step.type === 'reading') {
-    return `Reading ${step.reading.length} ${step.reading.length === 1 ? 'source' : 'sources'}`;
+    return `Lecture de ${step.reading.length} ${step.reading.length === 1 ? 'source' : 'sources'}`;
   } else if (step.type === 'upload_searching') {
-    return 'Scanning your uploaded documents';
+    return 'Analyse de vos documents';
   } else if (step.type === 'upload_search_results') {
-    return `Reading ${step.results.length} ${step.results.length === 1 ? 'document' : 'documents'}`;
+    return `Lecture de ${step.results.length} ${step.results.length === 1 ? 'document' : 'documents'}`;
   }
 
-  return 'Processing';
+  return 'Traitement';
 };
 
 const AssistantSteps = ({
@@ -75,23 +76,36 @@ const AssistantSteps = ({
 
   if (!block || block.data.subSteps.length === 0) return null;
 
+  const isActive = isLast && loading && !researchEnded;
+
   return (
-    <div className="rounded-lg bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200 overflow-hidden">
+    <div className="rounded-xl border border-black/[0.06] dark:border-white/[0.06] overflow-hidden bg-black/[0.01] dark:bg-white/[0.01]">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-3 hover:bg-light-200 dark:hover:bg-dark-200 transition duration-200"
+        className="w-full flex items-center justify-between px-4 py-3 hover:bg-black/[0.02] dark:hover:bg-white/[0.02] transition duration-200"
       >
-        <div className="flex items-center gap-2">
-          <Brain className="w-4 h-4 text-black dark:text-white" />
-          <span className="text-sm font-medium text-black dark:text-white">
-            Research Progress ({block.data.subSteps.length}{' '}
-            {block.data.subSteps.length === 1 ? 'step' : 'steps'})
+        <div className="flex items-center gap-2.5">
+          {isActive ? (
+            <div className="relative">
+              <Sparkles className="w-4 h-4 text-bokari-500" />
+              <div className="absolute inset-0 w-4 h-4 text-bokari-500 animate-ping opacity-20">
+                <Sparkles className="w-4 h-4" />
+              </div>
+            </div>
+          ) : (
+            <Brain className="w-4 h-4 text-bokari-500" />
+          )}
+          <span className="text-[13px] font-medium text-black/80 dark:text-white/80">
+            {isActive ? 'Recherche en cours' : 'Recherche terminee'}
+          </span>
+          <span className="text-[11px] text-black/30 dark:text-white/25 bg-black/[0.04] dark:bg-white/[0.04] px-2 py-0.5 rounded-full">
+            {block.data.subSteps.length} {block.data.subSteps.length === 1 ? 'etape' : 'etapes'}
           </span>
         </div>
         {isExpanded ? (
-          <ChevronUp className="w-4 h-4 text-black/70 dark:text-white/70" />
+          <ChevronUp className="w-4 h-4 text-black/30 dark:text-white/25" />
         ) : (
-          <ChevronDown className="w-4 h-4 text-black/70 dark:text-white/70" />
+          <ChevronDown className="w-4 h-4 text-black/30 dark:text-white/25" />
         )}
       </button>
 
@@ -102,9 +116,9 @@ const AssistantSteps = ({
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="border-t border-light-200 dark:border-dark-200"
+            className="border-t border-black/[0.05] dark:border-white/[0.05]"
           >
-            <div className="p-3 space-y-2">
+            <div className="px-4 py-3 space-y-1">
               {block.data.subSteps.map((step, index) => {
                 const isLastStep = index === block.data.subSteps.length - 1;
                 const isStreaming = loading && isLastStep && !researchEnded;
@@ -112,48 +126,39 @@ const AssistantSteps = ({
                 return (
                   <motion.div
                     key={step.id}
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.2, delay: 0 }}
-                    className="flex gap-2"
+                    transition={{ duration: 0.15, delay: 0 }}
+                    className="flex gap-2.5"
                   >
-                    <div className="flex flex-col items-center -mt-0.5">
+                    <div className="flex flex-col items-center pt-0.5">
                       <div
-                        className={`rounded-full p-1.5 bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 ${isStreaming ? 'animate-pulse' : ''}`}
+                        className={`rounded-lg p-1.5 text-black/50 dark:text-white/40 ${isStreaming ? 'text-bokari-500 dark:text-bokari-400 bokari-pulse' : ''}`}
                       >
                         {getStepIcon(step)}
                       </div>
                       {index < block.data.subSteps.length - 1 && (
-                        <div className="w-0.5 flex-1 min-h-[20px] bg-light-200 dark:bg-dark-200 mt-1.5" />
+                        <div className="w-px flex-1 min-h-[16px] bg-black/[0.06] dark:bg-white/[0.06] mt-1" />
                       )}
                     </div>
 
-                    <div className="flex-1 pb-1">
-                      <span className="text-sm font-medium text-black dark:text-white">
+                    <div className="flex-1 pb-2">
+                      <span className="text-[13px] font-medium text-black/70 dark:text-white/70">
                         {getStepTitle(step, isStreaming)}
                       </span>
 
                       {step.type === 'reasoning' && (
                         <>
                           {step.reasoning && (
-                            <p className="text-xs text-black/70 dark:text-white/70 mt-0.5">
+                            <p className="text-[12px] text-black/45 dark:text-white/40 mt-0.5 leading-relaxed">
                               {step.reasoning}
                             </p>
                           )}
                           {isStreaming && !step.reasoning && (
-                            <div className="flex items-center gap-1.5 mt-0.5">
-                              <div
-                                className="w-1.5 h-1.5 bg-black/40 dark:bg-white/40 rounded-full animate-bounce"
-                                style={{ animationDelay: '0ms' }}
-                              />
-                              <div
-                                className="w-1.5 h-1.5 bg-black/40 dark:bg-white/40 rounded-full animate-bounce"
-                                style={{ animationDelay: '150ms' }}
-                              />
-                              <div
-                                className="w-1.5 h-1.5 bg-black/40 dark:bg-white/40 rounded-full animate-bounce"
-                                style={{ animationDelay: '300ms' }}
-                              />
+                            <div className="flex items-center gap-1 mt-1">
+                              <div className="w-1 h-1 bg-bokari-500/50 rounded-full typing-dot" />
+                              <div className="w-1 h-1 bg-bokari-500/50 rounded-full typing-dot" />
+                              <div className="w-1 h-1 bg-bokari-500/50 rounded-full typing-dot" />
                             </div>
                           )}
                         </>
@@ -165,7 +170,7 @@ const AssistantSteps = ({
                             {step.searching.map((query, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 border border-light-200 dark:border-dark-200"
+                                className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] bg-bokari-500/[0.06] dark:bg-bokari-500/[0.08] text-bokari-700 dark:text-bokari-300 border border-bokari-500/10"
                               >
                                 {query}
                               </span>
@@ -190,7 +195,7 @@ const AssistantSteps = ({
                                   key={idx}
                                   href={url}
                                   target="_blank"
-                                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 border border-light-200 dark:border-dark-200"
+                                  className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-[11px] bg-black/[0.03] dark:bg-white/[0.03] text-black/60 dark:text-white/50 border border-black/[0.05] dark:border-white/[0.05] hover:border-bokari-500/20 transition-colors"
                                 >
                                   {faviconUrl && (
                                     <img
@@ -202,7 +207,7 @@ const AssistantSteps = ({
                                       }}
                                     />
                                   )}
-                                  <span className="line-clamp-1">{title}</span>
+                                  <span className="line-clamp-1 max-w-[120px]">{title}</span>
                                 </a>
                               );
                             })}
@@ -215,7 +220,7 @@ const AssistantSteps = ({
                             {step.queries.map((query, idx) => (
                               <span
                                 key={idx}
-                                className="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium bg-light-100 dark:bg-dark-100 text-black/70 dark:text-white/70 border border-light-200 dark:border-dark-200"
+                                className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] bg-bokari-500/[0.06] dark:bg-bokari-500/[0.08] text-bokari-700 dark:text-bokari-300 border border-bokari-500/10"
                               >
                                 {query}
                               </span>
@@ -225,7 +230,7 @@ const AssistantSteps = ({
 
                       {step.type === 'upload_search_results' &&
                         step.results.length > 0 && (
-                          <div className="mt-1.5 grid gap-3 lg:grid-cols-3">
+                          <div className="mt-1.5 grid gap-2 lg:grid-cols-3">
                             {step.results.slice(0, 4).map((result, idx) => {
                               const title =
                                 (result.metadata &&
@@ -236,16 +241,14 @@ const AssistantSteps = ({
                               return (
                                 <div
                                   key={idx}
-                                  className="flex flex-row space-x-3 rounded-lg border border-light-200 dark:border-dark-200 bg-light-100 dark:bg-dark-100 p-2 cursor-pointer"
+                                  className="flex items-center gap-2.5 rounded-lg border border-black/[0.06] dark:border-white/[0.06] bg-black/[0.01] dark:bg-white/[0.01] p-2"
                                 >
-                                  <div className="mt-0.5 h-10 w-10 rounded-md bg-cyan-100 text-cyan-800 dark:bg-sky-500 dark:text-cyan-50 flex items-center justify-center">
-                                    <FileText className="w-5 h-5" />
+                                  <div className="h-8 w-8 rounded-lg bg-bokari-500/8 dark:bg-bokari-500/10 text-bokari-600 dark:text-bokari-400 flex items-center justify-center flex-shrink-0">
+                                    <FileText className="w-4 h-4" />
                                   </div>
-                                  <div className="flex flex-col justify-center">
-                                    <p className="text-[13px] text-black dark:text-white line-clamp-1">
-                                      {title}
-                                    </p>
-                                  </div>
+                                  <p className="text-[12px] text-black/70 dark:text-white/60 line-clamp-1">
+                                    {title}
+                                  </p>
                                 </div>
                               );
                             })}

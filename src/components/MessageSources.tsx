@@ -6,9 +6,51 @@ import {
   Transition,
   TransitionChild,
 } from '@headlessui/react';
-import { File } from 'lucide-react';
+import { File, ExternalLink, X } from 'lucide-react';
 import { Fragment, useState } from 'react';
 import { Chunk } from '@/lib/types';
+
+const SourceCard = ({ source, index }: { source: Chunk; index: number }) => {
+  const isFile = source.metadata.url.includes('file_id://');
+  const domain = isFile ? '' : (() => {
+    try { return new URL(source.metadata.url).hostname.replace('www.', ''); } catch { return ''; }
+  })();
+
+  return (
+    <a
+      className="source-card bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl p-3 flex flex-col justify-between gap-2 border border-transparent hover:border-black/[0.06] dark:hover:border-white/[0.06] transition-all duration-200"
+      href={source.metadata.url}
+      target="_blank"
+    >
+      <p className="text-[12px] text-black/70 dark:text-white/70 font-medium leading-snug line-clamp-2">
+        {source.metadata.title}
+      </p>
+      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 min-w-0 flex-1">
+          {isFile ? (
+            <div className="w-4 h-4 rounded bg-black/10 dark:bg-white/10 flex items-center justify-center flex-shrink-0">
+              <File size={10} className="text-black/50 dark:text-white/50" />
+            </div>
+          ) : (
+            <img
+              src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${source.metadata.url}`}
+              width={14}
+              height={14}
+              alt=""
+              className="rounded-sm flex-shrink-0"
+            />
+          )}
+          <span className="text-[11px] text-black/40 dark:text-white/35 truncate">
+            {isFile ? 'Fichier' : domain}
+          </span>
+        </div>
+        <span className="text-[10px] text-black/25 dark:text-white/20 bg-black/[0.04] dark:bg-white/[0.04] px-1.5 py-0.5 rounded-md font-medium flex-shrink-0">
+          {index + 1}
+        </span>
+      </div>
+    </a>
+  );
+};
 
 const MessageSources = ({ sources }: { sources: Chunk[] }) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -26,130 +68,78 @@ const MessageSources = ({ sources }: { sources: Chunk[] }) => {
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
       {sources.slice(0, 3).map((source, i) => (
-        <a
-          className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
-          key={i}
-          href={source.metadata.url}
-          target="_blank"
-        >
-          <p className="dark:text-white text-xs overflow-hidden whitespace-nowrap text-ellipsis">
-            {source.metadata.title}
-          </p>
-          <div className="flex flex-row items-center justify-between">
-            <div className="flex flex-row items-center space-x-1">
-              {source.metadata.url.includes('file_id://') ? (
-                <div className="bg-dark-200 hover:bg-dark-100 transition duration-200 flex items-center justify-center w-6 h-6 rounded-full">
-                  <File size={12} className="text-white/70" />
-                </div>
-              ) : (
-                <img
-                  src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${source.metadata.url}`}
-                  width={16}
-                  height={16}
-                  alt="favicon"
-                  className="rounded-lg h-4 w-4"
-                />
-              )}
-              <p className="text-xs text-black/50 dark:text-white/50 overflow-hidden whitespace-nowrap text-ellipsis">
-                {source.metadata.url.includes('file_id://')
-                  ? 'Uploaded File'
-                  : source.metadata.url.replace(/.+\/\/|www.|\..+/g, '')}
-              </p>
-            </div>
-            <div className="flex flex-row items-center space-x-1 text-black/50 dark:text-white/50 text-xs">
-              <div className="bg-black/50 dark:bg-white/50 h-[4px] w-[4px] rounded-full" />
-              <span>{i + 1}</span>
-            </div>
-          </div>
-        </a>
+        <SourceCard key={i} source={source} index={i} />
       ))}
       {sources.length > 3 && (
         <button
           onClick={openModal}
-          className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
+          className="source-card bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.05] rounded-xl p-3 flex flex-col justify-between gap-2 border border-transparent hover:border-black/[0.06] dark:hover:border-white/[0.06] transition-all duration-200"
         >
-          <div className="flex flex-row items-center space-x-1">
-            {sources.slice(3, 6).map((source, i) => {
-              return source.metadata.url === 'File' ? (
+          <div className="flex items-center -space-x-1">
+            {sources.slice(3, 7).map((source, i) => {
+              return source.metadata.url.includes('file_id://') ? (
                 <div
                   key={i}
-                  className="bg-dark-200 hover:bg-dark-100 transition duration-200 flex items-center justify-center w-6 h-6 rounded-full"
+                  className="w-5 h-5 rounded-full bg-black/10 dark:bg-white/10 flex items-center justify-center border-2 border-white dark:border-dark-200"
                 >
-                  <File size={12} className="text-white/70" />
+                  <File size={9} className="text-black/50 dark:text-white/50" />
                 </div>
               ) : (
                 <img
                   key={i}
                   src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${source.metadata.url}`}
-                  width={16}
-                  height={16}
-                  alt="favicon"
-                  className="rounded-lg h-4 w-4"
+                  width={18}
+                  height={18}
+                  alt=""
+                  className="rounded-full border-2 border-white dark:border-dark-200"
                 />
               );
             })}
           </div>
-          <p className="text-xs text-black/50 dark:text-white/50">
-            View {sources.length - 3} more
-          </p>
+          <span className="text-[11px] text-black/40 dark:text-white/35 font-medium">
+            +{sources.length - 3} sources
+          </span>
         </button>
       )}
       <Transition appear show={isDialogOpen} as={Fragment}>
         <Dialog as="div" className="relative z-50" onClose={closeModal}>
+          <TransitionChild
+            as={Fragment}
+            enter="ease-out duration-200"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-150"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm" />
+          </TransitionChild>
           <div className="fixed inset-0 overflow-y-auto">
-            <div className="flex min-h-full items-center justify-center p-4 text-center">
+            <div className="flex min-h-full items-center justify-center p-4">
               <TransitionChild
                 as={Fragment}
                 enter="ease-out duration-200"
                 enterFrom="opacity-0 scale-95"
                 enterTo="opacity-100 scale-100"
                 leave="ease-in duration-100"
-                leaveFrom="opacity-100 scale-200"
+                leaveFrom="opacity-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <DialogPanel className="w-full max-w-md transform rounded-2xl bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200 p-6 text-left align-middle shadow-xl transition-all">
-                  <DialogTitle className="text-lg font-medium leading-6 dark:text-white">
-                    Sources
-                  </DialogTitle>
-                  <div className="grid grid-cols-2 gap-2 overflow-auto max-h-[300px] mt-2 pr-2">
+                <DialogPanel className="w-full max-w-lg transform rounded-2xl bg-white dark:bg-dark-100 border border-black/[0.08] dark:border-white/[0.08] p-5 shadow-elevated transition-all">
+                  <div className="flex items-center justify-between mb-4">
+                    <DialogTitle className="text-base font-medium text-black/90 dark:text-white/90">
+                      Toutes les sources ({sources.length})
+                    </DialogTitle>
+                    <button
+                      onClick={closeModal}
+                      className="p-1.5 rounded-lg text-black/30 dark:text-white/30 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2 overflow-auto max-h-[400px] pr-1">
                     {sources.map((source, i) => (
-                      <a
-                        className="bg-light-secondary hover:bg-light-200 dark:bg-dark-secondary dark:hover:bg-dark-200 border border-light-200 dark:border-dark-200 transition duration-200 rounded-lg p-3 flex flex-col space-y-2 font-medium"
-                        key={i}
-                        href={source.metadata.url}
-                        target="_blank"
-                      >
-                        <p className="dark:text-white text-xs overflow-hidden whitespace-nowrap text-ellipsis">
-                          {source.metadata.title}
-                        </p>
-                        <div className="flex flex-row items-center justify-between">
-                          <div className="flex flex-row items-center space-x-1">
-                            {source.metadata.url === 'File' ? (
-                              <div className="bg-dark-200 hover:bg-dark-100 transition duration-200 flex items-center justify-center w-6 h-6 rounded-full">
-                                <File size={12} className="text-white/70" />
-                              </div>
-                            ) : (
-                              <img
-                                src={`https://s2.googleusercontent.com/s2/favicons?domain_url=${source.metadata.url}`}
-                                width={16}
-                                height={16}
-                                alt="favicon"
-                                className="rounded-lg h-4 w-4"
-                              />
-                            )}
-                            <p className="text-xs text-black/50 dark:text-white/50 overflow-hidden whitespace-nowrap text-ellipsis">
-                              {source.metadata.url.replace(
-                                /.+\/\/|www.|\..+/g,
-                                '',
-                              )}
-                            </p>
-                          </div>
-                          <div className="flex flex-row items-center space-x-1 text-black/50 dark:text-white/50 text-xs">
-                            <div className="bg-black/50 dark:bg-white/50 h-[4px] w-[4px] rounded-full" />
-                            <span>{i + 1}</span>
-                          </div>
-                        </div>
-                      </a>
+                      <SourceCard key={i} source={source} index={i} />
                     ))}
                   </div>
                 </DialogPanel>

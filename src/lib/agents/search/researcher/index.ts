@@ -14,10 +14,10 @@ class Researcher {
     let actionOutput: ActionOutput[] = [];
     let maxIteration =
       input.config.mode === 'speed'
-        ? 2
+        ? 3
         : input.config.mode === 'balanced'
           ? 6
-          : 25;
+          : 35; // deep search: up to 35 iterations x 3 queries = ~100 sources
 
     const availableTools = ActionRegistry.getAvailableActionTools({
       classification: input.classification,
@@ -167,6 +167,7 @@ class Researcher {
         session: session,
         researchBlockId: researchBlockId,
         fileIds: input.config.fileIds,
+        mode: input.config.mode,
       });
 
       actionOutput.push(...actionResults);

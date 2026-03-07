@@ -1,22 +1,20 @@
-# Perplexica Search API Documentation
+# Bokari Search API Documentation
 
 ## Overview
 
-Perplexica’s Search API makes it easy to use our AI-powered search engine. You can run different types of searches, pick the models you want to use, and get the most recent info. Follow the following headings to learn more about Perplexica's search API.
+L'API de recherche de Bokari permet d'integrer le moteur de recherche IA dans vos applications. Vous pouvez lancer des recherches, choisir vos modeles et obtenir des reponses sourcees.
 
 ## Endpoints
 
-### Get Available Providers and Models
-
-Before making search requests, you'll need to get the available providers and their models.
+### Obtenir les providers disponibles
 
 #### **GET** `/api/providers`
 
-**Full URL**: `http://localhost:3000/api/providers`
+**URL** : `http://localhost:3000/api/providers`
 
-Returns a list of all active providers with their available chat and embedding models.
+Retourne la liste des providers actifs avec leurs modeles.
 
-**Response Example:**
+**Exemple de reponse :**
 
 ```json
 {
@@ -25,41 +23,26 @@ Returns a list of all active providers with their available chat and embedding m
       "id": "550e8400-e29b-41d4-a716-446655440000",
       "name": "OpenAI",
       "chatModels": [
-        {
-          "name": "GPT 4 Omni Mini",
-          "key": "gpt-4o-mini"
-        },
-        {
-          "name": "GPT 4 Omni",
-          "key": "gpt-4o"
-        }
+        { "name": "GPT 4 Omni Mini", "key": "gpt-4o-mini" },
+        { "name": "GPT 4 Omni", "key": "gpt-4o" }
       ],
       "embeddingModels": [
-        {
-          "name": "Text Embedding 3 Large",
-          "key": "text-embedding-3-large"
-        }
+        { "name": "Text Embedding 3 Large", "key": "text-embedding-3-large" }
       ]
     }
   ]
 }
 ```
 
-Use the `id` field as the `providerId` and the `key` field from the models arrays when making search requests.
-
-### Search Query
+### Lancer une recherche
 
 #### **POST** `/api/search`
 
-**Full URL**: `http://localhost:3000/api/search`
+**URL** : `http://localhost:3000/api/search`
 
-**Note**: Replace `localhost:3000` with your Perplexica instance URL if running on a different host or port
+**Note** : Remplacez `localhost:3000` par l'URL de votre instance Bokari si necessaire.
 
-### Request
-
-The API accepts a JSON object in the request body, where you define the enabled search `sources`, chat models, embedding models, and your query.
-
-#### Request Body Structure
+### Corps de la requete
 
 ```json
 {
@@ -73,118 +56,74 @@ The API accepts a JSON object in the request body, where you define the enabled 
   },
   "optimizationMode": "speed",
   "sources": ["web"],
-  "query": "What is Perplexica",
+  "query": "Quelles sont les dernieres nouvelles en Afrique de l'Ouest ?",
   "history": [
-    ["human", "Hi, how are you?"],
-    ["assistant", "I am doing well, how can I help you today?"]
+    ["human", "Bonjour"],
+    ["assistant", "Bonjour, comment puis-je vous aider ?"]
   ],
-  "systemInstructions": "Focus on providing technical details about Perplexica's architecture.",
+  "systemInstructions": "Repondre en francais avec des sources fiables.",
   "stream": false
 }
 ```
 
-**Note**: The `providerId` must be a valid UUID obtained from the `/api/providers` endpoint. The example above uses a sample UUID for demonstration.
+### Parametres
 
-### Request Parameters
+- **`chatModel`** (object, requis) : Modele de chat a utiliser.
+  - `providerId` (string) : UUID du provider (depuis `/api/providers`)
+  - `key` (string) : Cle du modele (ex: `gpt-4o-mini`)
 
-- **`chatModel`** (object, required): Defines the chat model to be used for the query. To get available providers and models, send a GET request to `http://localhost:3000/api/providers`.
+- **`embeddingModel`** (object, requis) : Modele d'embedding pour la recherche semantique.
+  - `providerId` (string) : UUID du provider
+  - `key` (string) : Cle du modele (ex: `text-embedding-3-large`)
 
-  - `providerId` (string): The UUID of the provider. You can get this from the `/api/providers` endpoint response.
-  - `key` (string): The model key/identifier (e.g., `gpt-4o-mini`, `llama3.1:latest`). Use the `key` value from the provider's `chatModels` array, not the display name.
+- **`sources`** (array, requis) : Sources de recherche. Valeurs : `web`, `academic`, `discussions`
 
-- **`embeddingModel`** (object, required): Defines the embedding model for similarity-based searching. To get available providers and models, send a GET request to `http://localhost:3000/api/providers`.
+- **`optimizationMode`** (string, optionnel) : `speed`, `balanced`, ou `quality`
 
-  - `providerId` (string): The UUID of the embedding provider. You can get this from the `/api/providers` endpoint response.
-  - `key` (string): The embedding model key (e.g., `text-embedding-3-large`, `nomic-embed-text`). Use the `key` value from the provider's `embeddingModels` array, not the display name.
+- **`query`** (string, requis) : La question de recherche
 
-- **`sources`** (array, required): Which search sources to enable. Available values:
+- **`systemInstructions`** (string, optionnel) : Instructions personnalisees pour guider la reponse
 
-  - `web`, `academic`, `discussions`.
+- **`history`** (array, optionnel) : Historique de conversation pour le contexte
 
-- **`optimizationMode`** (string, optional): Specifies the optimization mode to control the balance between performance and quality. Available modes:
+- **`stream`** (boolean, optionnel) : Active le streaming SSE. Par defaut : `false`
 
-  - `speed`: Prioritize speed and return the fastest answer.
-  - `balanced`: Provide a balanced answer with good speed and reasonable quality.
-  - `quality`: Prioritize answer quality (may be slower).
-
-- **`query`** (string, required): The search query or question.
-
-- **`systemInstructions`** (string, optional): Custom instructions provided by the user to guide the AI's response. These instructions are treated as user preferences and have lower priority than the system's core instructions. For example, you can specify a particular writing style, format, or focus area.
-
-- **`history`** (array, optional): An array of message pairs representing the conversation history. Each pair consists of a role (either 'human' or 'assistant') and the message content. This allows the system to use the context of the conversation to refine results. Example:
-
-  ```json
-  [
-    ["human", "What is Perplexica?"],
-    ["assistant", "Perplexica is an AI-powered search engine..."]
-  ]
-  ```
-
-- **`stream`** (boolean, optional): When set to `true`, enables streaming responses. Default is `false`.
-
-### Response
-
-The response from the API includes both the final message and the sources used to generate that message.
-
-#### Standard Response (stream: false)
+### Reponse standard (stream: false)
 
 ```json
 {
-  "message": "Perplexica is an innovative, open-source AI-powered search engine designed to enhance the way users search for information online. Here are some key features and characteristics of Perplexica:\n\n- **AI-Powered Technology**: It utilizes advanced machine learning algorithms to not only retrieve information but also to understand the context and intent behind user queries, providing more relevant results [1][5].\n\n- **Open-Source**: Being open-source, Perplexica offers flexibility and transparency, allowing users to explore its functionalities without the constraints of proprietary software [3][10].",
+  "message": "Voici les dernieres nouvelles...",
   "sources": [
     {
-      "content": "Perplexica is an innovative, open-source AI-powered search engine designed to enhance the way users search for information online.",
+      "content": "Extrait du contenu source...",
       "metadata": {
-        "title": "What is Perplexica, and how does it function as an AI-powered search ...",
-        "url": "https://askai.glarity.app/search/What-is-Perplexica--and-how-does-it-function-as-an-AI-powered-search-engine"
-      }
-    },
-    {
-      "content": "Perplexica is an open-source AI-powered search tool that dives deep into the internet to find precise answers.",
-      "metadata": {
-        "title": "Sahar Mor's Post",
-        "url": "https://www.linkedin.com/posts/sahar-mor_a-new-open-source-project-called-perplexica-activity-7204489745668694016-ncja"
+        "title": "Titre de la page",
+        "url": "https://example.com/article"
       }
     }
-        ....
   ]
 }
 ```
 
-#### Streaming Response (stream: true)
+### Reponse streaming (stream: true)
 
-When streaming is enabled, the API returns a stream of newline-delimited JSON objects using Server-Sent Events (SSE). Each line contains a complete, valid JSON object. The response has `Content-Type: text/event-stream`.
-
-Example of streamed response objects:
+Retourne un flux SSE (`Content-Type: text/event-stream`) :
 
 ```
 {"type":"init","data":"Stream connected"}
-{"type":"sources","data":[{"content":"...","metadata":{"title":"...","url":"..."}},...]}
-{"type":"response","data":"Perplexica is an "}
-{"type":"response","data":"innovative, open-source "}
-{"type":"response","data":"AI-powered search engine..."}
+{"type":"sources","data":[...]}
+{"type":"response","data":"Bokari est "}
+{"type":"response","data":"un moteur de recherche..."}
 {"type":"done"}
 ```
 
-Clients should process each line as a separate JSON object. The different message types include:
+Types de messages :
+- **`init`** : Connexion etablie
+- **`sources`** : Sources utilisees
+- **`response`** : Fragments de la reponse
+- **`done`** : Fin du stream
 
-- **`init`**: Initial connection message
-- **`sources`**: All sources used for the response
-- **`response`**: Chunks of the generated answer text
-- **`done`**: Indicates the stream is complete
+### Codes d'erreur
 
-### Fields in the Response
-
-- **`message`** (string): The search result, generated based on the query and enabled `sources`.
-- **`sources`** (array): A list of sources that were used to generate the search result. Each source includes:
-  - `content`: A snippet of the relevant content from the source.
-  - `metadata`: Metadata about the source, including:
-    - `title`: The title of the webpage.
-    - `url`: The URL of the webpage.
-
-### Error Handling
-
-If an error occurs during the search process, the API will return an appropriate error message with an HTTP status code.
-
-- **400**: If the request is malformed or missing required fields (e.g., no `sources` or `query`).
-- **500**: If an internal server error occurs during the search.
+- **400** : Requete mal formee ou champs manquants
+- **500** : Erreur interne du serveur

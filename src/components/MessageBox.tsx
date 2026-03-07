@@ -7,10 +7,11 @@ import {
   BookCopy,
   Disc3,
   Volume2,
-  StopCircle,
+  Square,
   Layers3,
-  Plus,
-  CornerDownRight,
+  ArrowRight,
+  Loader2,
+  Sparkles,
 } from 'lucide-react';
 import Markdown, { MarkdownToJSX, RuleType } from 'markdown-to-jsx';
 import Copy from './MessageActions/Copy';
@@ -18,9 +19,9 @@ import Rewrite from './MessageActions/Rewrite';
 import MessageSources from './MessageSources';
 import SearchImages from './SearchImages';
 import SearchVideos from './SearchVideos';
-import { useSpeech } from 'react-text-to-speech';
 import ThinkBox from './ThinkBox';
 import { useChat, Section } from '@/lib/hooks/useChat';
+import { useElevenLabsTTS } from '@/lib/hooks/useElevenLabsTTS';
 import Citation from './MessageRenderer/Citation';
 import AssistantSteps from './AssistantSteps';
 import { ResearchBlock } from '@/lib/types';
@@ -59,11 +60,13 @@ const MessageBox = ({
     chatHistory,
   } = useChat();
 
+  const { speak, stop, isPlaying, isLoading: ttsLoading } = useElevenLabsTTS();
+
   const parsedMessage = section.parsedTextBlocks.join('\n\n');
   const speechMessage = section.speechMessage || '';
   const thinkingEnded = section.thinkingEnded;
 
-  const sourceBlocks = section.message.responseBlocks.filter(
+  const sourceBlocks = (section.message.responseBlocks || []).filter(
     (block): block is typeof block & { type: 'source' } =>
       block.type === 'source',
   );
@@ -71,8 +74,6 @@ const MessageBox = ({
   const sources = sourceBlocks.flatMap((block) => block.data);
 
   const hasContent = section.parsedTextBlocks.length > 0;
-
-  const { speechStatus, start, stop } = useSpeech({ text: speechMessage });
 
   const markdownOverrides: MarkdownToJSX.Options = {
     renderRule(next, node, renderChildren, state) {
@@ -103,74 +104,98 @@ const MessageBox = ({
     },
   };
 
+  const handleTTS = () => {
+    if (isPlaying) {
+      stop();
+    } else {
+      const cleanText = speechMessage
+        .replace(/<[^>]*>/g, '')
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/#{1,6}\s/g, '');
+      speak(cleanText);
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      <div className={'w-full pt-8 break-words'}>
-        <h2 className="text-black dark:text-white font-medium text-3xl lg:w-9/12">
+    <div className="bokari-fade-in">
+      {/* User query */}
+      <div className="pt-6 pb-5">
+        <h2 className="text-black/90 dark:text-white/90 font-medium text-2xl lg:text-[28px] lg:w-9/12 leading-snug tracking-tight">
           {section.message.query}
         </h2>
       </div>
 
-      <div className="flex flex-col space-y-9 lg:space-y-0 lg:flex-row lg:justify-between lg:space-x-9">
+      <div className="flex flex-col lg:flex-row lg:justify-between lg:gap-10">
         <div
           ref={dividerRef}
-          className="flex flex-col space-y-6 w-full lg:w-9/12"
+          className="flex flex-col gap-5 w-full lg:w-9/12"
         >
+          {/* Sources */}
           {sources.length > 0 && (
-            <div className="flex flex-col space-y-2">
-              <div className="flex flex-row items-center space-x-2">
-                <BookCopy className="text-black dark:text-white" size={20} />
-                <h3 className="text-black dark:text-white font-medium text-xl">
+            <div className="flex flex-col gap-2.5">
+              <div className="flex items-center gap-2">
+                <BookCopy className="text-bokari-500" size={16} />
+                <h3 className="text-black/80 dark:text-white/80 font-medium text-sm">
                   Sources
                 </h3>
+                <span className="text-[11px] text-black/30 dark:text-white/25 bg-black/[0.04] dark:bg-white/[0.04] px-2 py-0.5 rounded-full">
+                  {sources.length}
+                </span>
               </div>
               <MessageSources sources={sources} />
             </div>
           )}
 
-          {section.message.responseBlocks
+          {/* Research steps */}
+          {(section.message.responseBlocks || [])
             .filter(
               (block): block is ResearchBlock =>
                 block.type === 'research' && block.data.subSteps.length > 0,
             )
             .map((researchBlock) => (
-              <div key={researchBlock.id} className="flex flex-col space-y-2">
-                <AssistantSteps
-                  block={researchBlock}
-                  status={section.message.status}
-                  isLast={isLast}
-                />
-              </div>
+              <AssistantSteps
+                key={researchBlock.id}
+                block={researchBlock}
+                status={section.message.status}
+                isLast={isLast}
+              />
             ))}
 
+          {/* Loading indicator */}
           {isLast &&
             loading &&
             !researchEnded &&
-            !section.message.responseBlocks.some(
+            !(section.message.responseBlocks || []).some(
               (b) => b.type === 'research' && b.data.subSteps.length > 0,
             ) && (
-              <div className="flex items-center gap-2 p-3 rounded-lg bg-light-secondary dark:bg-dark-secondary border border-light-200 dark:border-dark-200">
-                <Disc3 className="w-4 h-4 text-black dark:text-white animate-spin" />
-                <span className="text-sm text-black/70 dark:text-white/70">
-                  Brainstorming...
+              <div className="flex items-center gap-3 py-4">
+                <div className="flex gap-1">
+                  <div className="w-1.5 h-1.5 bg-bokari-500 rounded-full typing-dot" />
+                  <div className="w-1.5 h-1.5 bg-bokari-500 rounded-full typing-dot" />
+                  <div className="w-1.5 h-1.5 bg-bokari-500 rounded-full typing-dot" />
+                </div>
+                <span className="text-sm text-black/40 dark:text-white/35">
+                  Reflexion en cours...
                 </span>
               </div>
             )}
 
+          {/* Widgets */}
           {section.widgets.length > 0 && <Renderer widgets={section.widgets} />}
 
-          <div className="flex flex-col space-y-2">
-            {sources.length > 0 && (
-              <div className="flex flex-row items-center space-x-2">
-                <Disc3
+          {/* Answer */}
+          <div className="flex flex-col gap-2">
+            {sources.length > 0 && hasContent && (
+              <div className="flex items-center gap-2">
+                <Sparkles
                   className={cn(
-                    'text-black dark:text-white',
-                    isLast && loading ? 'animate-spin' : 'animate-none',
+                    'text-bokari-500',
+                    isLast && loading ? 'animate-spin-slow' : '',
                   )}
-                  size={20}
+                  size={16}
                 />
-                <h3 className="text-black dark:text-white font-medium text-xl">
-                  Answer
+                <h3 className="text-black/80 dark:text-white/80 font-medium text-sm">
+                  Reponse
                 </h3>
               </div>
             )}
@@ -179,36 +204,46 @@ const MessageBox = ({
               <>
                 <Markdown
                   className={cn(
-                    'prose prose-h1:mb-3 prose-h2:mb-2 prose-h2:mt-6 prose-h2:font-[800] prose-h3:mt-4 prose-h3:mb-1.5 prose-h3:font-[600] dark:prose-invert prose-p:leading-relaxed prose-pre:p-0 font-[400]',
-                    'max-w-none break-words text-black dark:text-white',
+                    'prose prose-h1:mb-3 prose-h2:mb-2 prose-h2:mt-6 prose-h2:font-semibold prose-h3:mt-4 prose-h3:mb-1.5 prose-h3:font-medium dark:prose-invert prose-p:leading-[1.75] prose-pre:p-0',
+                    'max-w-none break-words text-black/80 dark:text-white/80 text-[15px]',
+                    'prose-a:text-bokari-600 dark:prose-a:text-bokari-400 prose-a:no-underline hover:prose-a:underline',
+                    'prose-strong:text-black/90 dark:prose-strong:text-white/90 prose-strong:font-semibold',
+                    'prose-li:text-black/75 dark:prose-li:text-white/75',
+                    'prose-blockquote:border-bokari-500/30 prose-blockquote:text-black/60 dark:prose-blockquote:text-white/50',
                   )}
                   options={markdownOverrides}
                 >
                   {parsedMessage}
                 </Markdown>
 
+                {/* Action bar */}
                 {loading && isLast ? null : (
-                  <div className="flex flex-row items-center justify-between w-full text-black dark:text-white py-4">
-                    <div className="flex flex-row items-center -ml-2">
+                  <div className="flex items-center justify-between w-full pt-4 mt-2 border-t border-black/[0.05] dark:border-white/[0.05]">
+                    <div className="flex items-center -ml-1.5">
                       <Rewrite
                         rewrite={rewrite}
                         messageId={section.message.messageId}
                       />
                     </div>
-                    <div className="flex flex-row items-center -mr-2">
+                    <div className="flex items-center gap-0.5 -mr-1.5">
                       <Copy initialMessage={parsedMessage} section={section} />
                       <button
-                        onClick={() => {
-                          if (speechStatus === 'started') {
-                            stop();
-                          } else {
-                            start();
-                          }
-                        }}
-                        className="p-2 text-black/70 dark:text-white/70 rounded-full hover:bg-light-secondary dark:hover:bg-dark-secondary transition duration-200 hover:text-black dark:hover:text-white"
+                        onClick={handleTTS}
+                        disabled={ttsLoading}
+                        className={cn(
+                          'p-2 rounded-xl transition-all duration-200',
+                          isPlaying
+                            ? 'text-bokari-500 bg-bokari-500/8'
+                            : ttsLoading
+                              ? 'text-bokari-500'
+                              : 'text-black/35 dark:text-white/30 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] hover:text-black/60 dark:hover:text-white/50',
+                        )}
+                        title={isPlaying ? 'Arreter la lecture' : 'Ecouter la reponse'}
                       >
-                        {speechStatus === 'started' ? (
-                          <StopCircle size={16} />
+                        {ttsLoading ? (
+                          <Loader2 size={16} className="animate-spin" />
+                        ) : isPlaying ? (
+                          <Square size={14} />
                         ) : (
                           <Volume2 size={16} />
                         )}
@@ -217,47 +252,37 @@ const MessageBox = ({
                   </div>
                 )}
 
+                {/* Related suggestions */}
                 {isLast &&
                   section.suggestions &&
                   section.suggestions.length > 0 &&
                   hasContent &&
                   !loading && (
                     <div className="mt-6">
-                      <div className="flex flex-row items-center space-x-2 mb-4">
-                        <Layers3
-                          className="text-black dark:text-white"
-                          size={20}
-                        />
-                        <h3 className="text-black dark:text-white font-medium text-xl">
-                          Related
+                      <div className="flex items-center gap-2 mb-3">
+                        <Layers3 className="text-bokari-500" size={16} />
+                        <h3 className="text-black/80 dark:text-white/80 font-medium text-sm">
+                          Questions connexes
                         </h3>
                       </div>
-                      <div className="space-y-0">
+                      <div className="rounded-2xl border border-black/[0.06] dark:border-white/[0.06] overflow-hidden divide-y divide-black/[0.04] dark:divide-white/[0.04]">
                         {section.suggestions.map(
                           (suggestion: string, i: number) => (
-                            <div key={i}>
-                              <div className="h-px bg-light-200/40 dark:bg-dark-200/40" />
-                              <button
-                                onClick={() => sendMessage(suggestion)}
-                                className="group w-full py-4 text-left transition-colors duration-200"
-                              >
-                                <div className="flex items-center justify-between gap-3">
-                                  <div className="flex flex-row space-x-3 items-center">
-                                    <CornerDownRight
-                                      size={15}
-                                      className="group-hover:text-sky-400 transition-colors duration-200 flex-shrink-0"
-                                    />
-                                    <p className="text-sm text-black/70 dark:text-white/70 group-hover:text-sky-400 transition-colors duration-200 leading-relaxed">
-                                      {suggestion}
-                                    </p>
-                                  </div>
-                                  <Plus
-                                    size={16}
-                                    className="text-black/40 dark:text-white/40 group-hover:text-sky-400 transition-colors duration-200 flex-shrink-0"
-                                  />
-                                </div>
-                              </button>
-                            </div>
+                            <button
+                              key={i}
+                              onClick={() => sendMessage(suggestion)}
+                              className="group w-full py-3 px-4 text-left transition-colors duration-200 hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <p className="text-[14px] text-black/60 dark:text-white/50 group-hover:text-black/80 dark:group-hover:text-white/70 transition-colors leading-relaxed">
+                                  {suggestion}
+                                </p>
+                                <ArrowRight
+                                  size={14}
+                                  className="text-black/15 dark:text-white/15 group-hover:text-bokari-500 transition-all duration-200 flex-shrink-0 group-hover:translate-x-0.5"
+                                />
+                              </div>
+                            </button>
                           ),
                         )}
                       </div>
@@ -268,8 +293,9 @@ const MessageBox = ({
           </div>
         </div>
 
+        {/* Media sidebar */}
         {hasContent && (
-          <div className="lg:sticky lg:top-20 flex flex-col items-center space-y-3 w-full lg:w-3/12 z-30 h-full pb-4">
+          <div className="lg:sticky lg:top-20 flex flex-col items-center gap-3 w-full lg:w-3/12 z-30 h-full pb-4 mt-6 lg:mt-0">
             <SearchImages
               query={section.message.query}
               chatHistory={chatHistory}

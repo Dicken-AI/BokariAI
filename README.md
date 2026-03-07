@@ -1,266 +1,439 @@
-# Perplexica 🔍
+# BOKARI
 
-[![GitHub Repo stars](https://img.shields.io/github/stars/ItzCrazyKns/Perplexica?style=social)](https://github.com/ItzCrazyKns/Perplexica/stargazers)
-[![GitHub forks](https://img.shields.io/github/forks/ItzCrazyKns/Perplexica?style=social)](https://github.com/ItzCrazyKns/Perplexica/network/members)
-[![GitHub watchers](https://img.shields.io/github/watchers/ItzCrazyKns/Perplexica?style=social)](https://github.com/ItzCrazyKns/Perplexica/watchers)
-[![Docker Pulls](https://img.shields.io/docker/pulls/itzcrazykns1337/perplexica?color=blue)](https://hub.docker.com/r/itzcrazykns1337/perplexica)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/ItzCrazyKns/Perplexica/blob/master/LICENSE)
-[![GitHub last commit](https://img.shields.io/github/last-commit/ItzCrazyKns/Perplexica?color=green)](https://github.com/ItzCrazyKns/Perplexica/commits/master)
-[![Discord](https://dcbadge.limes.pink/api/server/26aArMy8tT?style=flat)](https://discord.gg/26aArMy8tT)
-
-Perplexica is a **privacy-focused AI answering engine** that runs entirely on your own hardware. It combines knowledge from the vast internet with support for **local LLMs** (Ollama) and cloud providers (OpenAI, Claude, Groq), delivering accurate answers with **cited sources** while keeping your searches completely private.
-
-![preview](.assets/perplexica-screenshot.png)
-
-Want to know more about its architecture and how it works? You can read it [here](https://github.com/ItzCrazyKns/Perplexica/tree/master/docs/architecture/README.md).
-
-## ✨ Features
-
-🤖 **Support for all major AI providers** - Use local LLMs through Ollama or connect to OpenAI, Anthropic Claude, Google Gemini, Groq, and more. Mix and match models based on your needs.
-
-⚡ **Smart search modes** - Choose Speed Mode when you need quick answers, Balanced Mode for everyday searches, or Quality Mode for deep research.
-
-🧭 **Pick your sources** - Search the web, discussions, or academic papers. More sources and integrations are in progress.
-
-🧩 **Widgets** - Helpful UI cards that show up when relevant, like weather, calculations, stock prices, and other quick lookups.
-
-🔍 **Web search powered by SearxNG** - Access multiple search engines while keeping your identity private. Support for Tavily and Exa coming soon for even better results.
-
-📷 **Image and video search** - Find visual content alongside text results. Search isn't limited to just articles anymore.
-
-📄 **File uploads** - Upload documents and ask questions about them. PDFs, text files, images - Perplexica understands them all.
-
-🌐 **Search specific domains** - Limit your search to specific websites when you know where to look. Perfect for technical documentation or research papers.
-
-💡 **Smart suggestions** - Get intelligent search suggestions as you type, helping you formulate better queries.
-
-📚 **Discover** - Browse interesting articles and trending content throughout the day. Stay informed without even searching.
-
-🕒 **Search history** - Every search is saved locally so you can revisit your discoveries anytime. Your research is never lost.
-
-✨ **More coming soon** - We're actively developing new features based on community feedback. Join our Discord to help shape Perplexica's future!
-
-## Sponsors
-
-Perplexica's development is powered by the generous support of our sponsors. Their contributions help keep this project free, open-source, and accessible to everyone.
-
-<div align="center">
-  
-  
-<a href="https://www.warp.dev/perplexica">
-  <img alt="Warp Terminal" src=".assets/sponsers/warp.png" width="100%">
-</a>
-
-### **✨ [Try Warp - The AI-Powered Terminal →](https://www.warp.dev/perplexica)**
-
-Warp is revolutionizing development workflows with AI-powered features, modern UX, and blazing-fast performance. Used by developers at top companies worldwide.
-
-</div>
+### Le journaliste IA africain qui combat la desinformation
 
 ---
 
-We'd also like to thank the following partners for their generous support:
+Bokari est un moteur de recherche IA concu pour l'Afrique. Il cherche, verifie et synthetise l'information en temps reel, avec des sources citees pour chaque reponse. Pas de boite noire, pas de reponses inventees : chaque affirmation est tracable.
 
-<table>
-  <tr>
-    <td width="100" align="center">
-      <a href="https://dashboard.exa.ai" target="_blank">
-        <img src=".assets/sponsers/exa.png" alt="Exa" width="80" height="80" style="border-radius: .75rem;" />
-      </a>
-    </td>
-    <td>
-      <a href="https://dashboard.exa.ai">Exa</a> • The Perfect Web Search API for LLMs - web search, crawling, deep research, and answer APIs
-    </td>
-  </tr>
-</table>
+Le projet est ne d'un constat simple. L'acces a une information fiable et verifiee est un enjeu majeur sur le continent africain. Bokari est la pour aider les journalistes, les etudiants, les chercheurs et tous ceux qui veulent comprendre le monde avec des faits, pas des rumeurs.
 
-## Installation
+---
 
-There are mainly 2 ways of installing Perplexica - With Docker, Without Docker. Using Docker is highly recommended.
+## SOMMAIRE
 
-### Getting Started with Docker (Recommended)
+- [Fonctionnalites](#fonctionnalites)
+- [Architecture](#architecture)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Utilisation](#utilisation)
+- [API](#api)
+- [Stack technique](#stack-technique)
+- [Structure du projet](#structure-du-projet)
+- [Contribuer](#contribuer)
+- [Licence](#licence)
+- [Contact](#contact)
 
-Perplexica can be easily run using Docker. Simply run the following command:
+---
 
-```bash
-docker run -d -p 3000:3000 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:latest
+## FONCTIONNALITES
+
+### Recherche intelligente
+
+Bokari ne se contente pas de chercher sur Google. Il lance plusieurs requetes en parallele, extrait le contenu complet des pages, et synthetise une reponse claire avec des citations numerotees.
+
+Trois modes de recherche sont disponibles :
+
+- **Rapide** -- Reponse en quelques secondes, 5 a 10 sources consultees
+- **Standard** -- Equilibre entre vitesse et profondeur, 15 a 20 sources
+- **Approfondie** -- Investigation complete, 30 a 100 sources explorees
+
+### Sources multiples
+
+La recherche couvre plusieurs axes :
+
+- **Web** -- Recherche generale sur internet
+- **Academique** -- Articles scientifiques et publications
+- **Discussions** -- Forums, reseaux sociaux, debats en ligne
+
+### Widgets contextuels
+
+Des cartes d'information s'affichent automatiquement quand c'est pertinent : meteo, cours boursiers, calculs, et d'autres a venir.
+
+### Recherche d'images et de videos
+
+Bokari peut aussi trouver du contenu visuel en rapport avec votre question, directement dans l'interface de chat.
+
+### Upload de documents
+
+Envoyez un PDF, un fichier texte ou un document Word, et posez des questions dessus. Bokari indexe le contenu et repond avec precision.
+
+### Voix avec ElevenLabs
+
+Synthese vocale et reconnaissance vocale integrees via ElevenLabs, pour une experience plus naturelle.
+
+### Decouverte
+
+Un onglet decouverte affiche les actualites du jour par theme (technologie, science, economie, sport...), pour rester informe sans meme chercher.
+
+### Historique
+
+Chaque conversation est sauvegardee. Vous pouvez retrouver et reprendre n'importe quelle recherche passee.
+
+### Multi-providers IA
+
+Bokari fonctionne avec plusieurs fournisseurs de modeles IA :
+
+- **OpenAI** (GPT-4o, GPT-4o-mini)
+- **Anthropic** (Claude Sonnet, Claude Haiku)
+- **Google** (Gemini)
+- **Groq** (Llama, Mixtral -- gratuit et rapide)
+- **Ollama** (modeles locaux, 100% hors-ligne)
+
+### Routing intelligent
+
+Les modeles internes de Bokari (`bokari-1`, `bokari-cheap`) routent automatiquement vers le meilleur modele disponible.
+
+---
+
+## ARCHITECTURE
+
+Bokari suit un pipeline de type RAG (Retrieval-Augmented Generation) :
+
+```
+Question utilisateur
+       |
+       v
+  Classification
+  (faut-il chercher ? quels widgets ?)
+       |
+       v
+  +----+----+
+  |         |
+  v         v
+Recherche  Widgets
+(TinyFish,  (meteo,
+ SearXNG)   bourse...)
+  |         |
+  v         v
+Extraction du contenu
+(HTML -> Markdown, max 4000 car.)
+       |
+       v
+  Generation de la reponse
+  (LLM + citations)
+       |
+       v
+  Streaming SSE vers le client
 ```
 
-This will pull and start the Perplexica container with the bundled SearxNG search engine. Once running, open your browser and navigate to http://localhost:3000. You can then configure your settings (API keys, models, etc.) directly in the setup screen.
+### Moteurs de recherche
 
-**Note**: The image includes both Perplexica and SearxNG, so no additional setup is required. The `-v` flags create persistent volumes for your data and uploaded files.
+- **TinyFish Web Agent** -- Moteur principal, recherche Google via API
+- **SearXNG** -- Meta-moteur open source en fallback
+- **DuckDuckGo** -- Troisieme niveau de fallback via scraping HTML
 
-#### Using Perplexica with Your Own SearxNG Instance
+### Base de donnees
 
-If you already have SearxNG running, you can use the slim version of Perplexica:
+- **Supabase PostgreSQL** -- Stockage des chats, messages et utilisateurs
+- **RLS (Row Level Security)** -- Chaque utilisateur n'accede qu'a ses propres donnees
+
+### Authentification
+
+- **Supabase Auth** -- Inscription, connexion, gestion des sessions
+- **Bearer token** -- Toutes les requetes API sont authentifiees
+
+Pour plus de details techniques, voir la [documentation d'architecture](docs/architecture/README.md).
+
+---
+
+## INSTALLATION
+
+### Avec Docker (recommande)
+
+La methode la plus simple. Une seule commande :
 
 ```bash
-docker run -d -p 3000:3000 -e SEARXNG_API_URL=http://your-searxng-url:8080 -v perplexica-data:/home/perplexica/data --name perplexica itzcrazykns1337/perplexica:slim-latest
+docker run -d -p 3000:3000 -v bokari-data:/home/bokari/data --name bokari dickenai/bokari:latest
 ```
 
-**Important**: Make sure your SearxNG instance has:
+Ca demarre Bokari avec SearXNG integre. Ouvrez http://localhost:3000 et configurez vos cles API dans l'assistant de configuration.
 
-- JSON format enabled in the settings
-- Wolfram Alpha search engine enabled
+#### Version slim (sans SearXNG integre)
 
-Replace `http://your-searxng-url:8080` with your actual SearxNG URL. Then configure your AI provider settings in the setup screen at http://localhost:3000.
+Si vous avez deja SearXNG qui tourne quelque part :
 
-#### Advanced Setup (Building from Source)
+```bash
+docker run -d -p 3000:3000 \
+  -e SEARXNG_API_URL=http://votre-searxng:8080 \
+  -v bokari-data:/home/bokari/data \
+  --name bokari dickenai/bokari:slim-latest
+```
 
-If you prefer to build from source or need more control:
+#### Build depuis les sources
 
-1. Ensure Docker is installed and running on your system.
-2. Clone the Perplexica repository:
+```bash
+git clone https://github.com/nicko858/bokari.git
+cd bokari
+docker build -t bokari .
+docker run -d -p 3000:3000 -v bokari-data:/home/bokari/data --name bokari bokari
+```
 
-   ```bash
-   git clone https://github.com/ItzCrazyKns/Perplexica.git
-   ```
+### Sans Docker
 
-3. After cloning, navigate to the directory containing the project files.
+1. Installez Node.js 18+ et npm
 
-4. Build and run using Docker:
+2. Clonez le projet :
 
-   ```bash
-   docker build -t perplexica .
-   docker run -d -p 3000:3000 -v perplexica-data:/home/perplexica/data --name perplexica perplexica
-   ```
+```bash
+git clone https://github.com/nicko858/bokari.git
+cd bokari
+```
 
-5. Access Perplexica at http://localhost:3000 and configure your settings in the setup screen.
+3. Installez les dependances :
 
-**Note**: After the containers are built, you can start Perplexica directly from Docker without having to open a terminal.
+```bash
+npm install
+```
 
-### Non-Docker Installation
+4. Construisez l'application :
 
-1. Install SearXNG and allow `JSON` format in the SearXNG settings. Make sure Wolfram Alpha search engine is also enabled.
-2. Clone the repository:
+```bash
+npm run build
+```
 
-   ```bash
-   git clone https://github.com/ItzCrazyKns/Perplexica.git
-   cd Perplexica
-   ```
+5. Demarrez :
 
-3. Install dependencies:
+```bash
+npm run start
+```
 
-   ```bash
-   npm i
-   ```
+6. Ouvrez http://localhost:3000 et suivez l'assistant de configuration.
 
-4. Build the application:
+### Mode developpement
 
-   ```bash
-   npm run build
-   ```
+```bash
+npm run dev
+```
 
-5. Start the application:
+Le serveur demarre sur http://localhost:3000 avec rechargement automatique.
 
-   ```bash
-   npm run start
-   ```
+---
 
-6. Open your browser and navigate to http://localhost:3000 to complete the setup and configure your settings (API keys, models, SearxNG URL, etc.) in the setup screen.
+## CONFIGURATION
 
-**Note**: Using Docker is recommended as it simplifies the setup process, especially for managing environment variables and dependencies.
+Au premier lancement, un assistant de configuration vous guide. Vous aurez besoin de :
 
-See the [installation documentation](https://github.com/ItzCrazyKns/Perplexica/tree/master/docs/installation) for more information like updating, etc.
+### 1. Un provider LLM (obligatoire)
 
-### Troubleshooting
+Choisissez au moins un fournisseur de modele IA :
 
-#### Local OpenAI-API-Compliant Servers
+| Provider   | Modeles recommandes        | Cout      |
+|-----------|---------------------------|-----------|
+| Groq      | llama-3.3-70b             | Gratuit   |
+| Ollama    | llama3.1:8b, mistral      | Gratuit (local) |
+| OpenAI    | gpt-4o, gpt-4o-mini      | Payant    |
+| Anthropic | claude-sonnet-4-6         | Payant    |
+| Google    | gemini-2.0-flash         | Gratuit (limite) |
 
-If Perplexica tells you that you haven't configured any chat model providers, ensure that:
+### 2. Un modele d'embedding (recommande)
 
-1. Your server is running on `0.0.0.0` (not `127.0.0.1`) and on the same port you put in the API URL.
-2. You have specified the correct model name loaded by your local LLM server.
-3. You have specified the correct API key, or if one is not defined, you have put _something_ in the API key field and not left it empty.
+Pour la recherche semantique et l'upload de documents :
 
-#### Ollama Connection Errors
+| Provider | Modele                    | Cout      |
+|----------|--------------------------|-----------|
+| OpenAI   | text-embedding-3-small   | Payant    |
+| Ollama   | nomic-embed-text         | Gratuit (local) |
 
-If you're encountering an Ollama connection error, it is likely due to the backend being unable to connect to Ollama's API. To fix this issue you can:
+### 3. ElevenLabs (optionnel)
 
-1. **Check your Ollama API URL:** Ensure that the API URL is correctly set in the settings menu.
-2. **Update API URL Based on OS:**
+Pour la synthese vocale et la reconnaissance vocale. Obtenez une cle API sur https://elevenlabs.io.
 
-   - **Windows:** Use `http://host.docker.internal:11434`
-   - **Mac:** Use `http://host.docker.internal:11434`
-   - **Linux:** Use `http://<private_ip_of_host>:11434`
+### Variables d'environnement
 
-   Adjust the port number if you're using a different one.
+La plupart de la configuration se fait via l'interface web. Voir [.env.example](.env.example) pour les options avancees.
 
-3. **Linux Users - Expose Ollama to Network:**
+---
 
-   - Inside `/etc/systemd/system/ollama.service`, you need to add `Environment="OLLAMA_HOST=0.0.0.0:11434"`. (Change the port number if you are using a different one.) Then reload the systemd manager configuration with `systemctl daemon-reload`, and restart Ollama by `systemctl restart ollama`. For more information see [Ollama docs](https://github.com/ollama/ollama/blob/main/docs/faq.md#setting-environment-variables-on-linux)
+## UTILISATION
 
-   - Ensure that the port (default is 11434) is not blocked by your firewall.
+### Interface de chat
 
-#### Lemonade Connection Errors
+Tapez votre question dans la barre de recherche. Bokari va :
 
-If you're encountering a Lemonade connection error, it is likely due to the backend being unable to connect to Lemonade's API. To fix this issue you can:
+1. Analyser votre question
+2. Lancer les recherches necessaires
+3. Afficher les etapes en temps reel (recherche en cours, sources trouvees...)
+4. Generer une reponse avec citations numerotees
+5. Afficher les sources cliquables
 
-1. **Check your Lemonade API URL:** Ensure that the API URL is correctly set in the settings menu.
-2. **Update API URL Based on OS:**
+### Modes de recherche
 
-   - **Windows:** Use `http://host.docker.internal:8000`
-   - **Mac:** Use `http://host.docker.internal:8000`
-   - **Linux:** Use `http://<private_ip_of_host>:8000`
-
-   Adjust the port number if you're using a different one.
-
-3. **Ensure Lemonade Server is Running:**
-
-   - Make sure your Lemonade server is running and accessible on the configured port (default is 8000).
-   - Verify that Lemonade is configured to accept connections from all interfaces (`0.0.0.0`), not just localhost (`127.0.0.1`).
-   - Ensure that the port (default is 8000) is not blocked by your firewall.
-
-## Using as a Search Engine
-
-If you wish to use Perplexica as an alternative to traditional search engines like Google or Bing, or if you want to add a shortcut for quick access from your browser's search bar, follow these steps:
-
-1. Open your browser's settings.
-2. Navigate to the 'Search Engines' section.
-3. Add a new site search with the following URL: `http://localhost:3000/?q=%s`. Replace `localhost` with your IP address or domain name, and `3000` with the port number if Perplexica is not hosted locally.
-4. Click the add button. Now, you can use Perplexica directly from your browser's search bar.
-
-## Using Perplexica's API
-
-Perplexica also provides an API for developers looking to integrate its powerful search engine into their own applications. You can run searches, use multiple models and get answers to your queries.
-
-For more details, check out the full documentation [here](https://github.com/ItzCrazyKns/Perplexica/tree/master/docs/API/SEARCH.md).
-
-## Expose Perplexica to network
-
-Perplexica runs on Next.js and handles all API requests. It works right away on the same network and stays accessible even with port forwarding.
-
-## One-Click Deployment
-
-[![Deploy to Sealos](https://raw.githubusercontent.com/labring-actions/templates/main/Deploy-on-Sealos.svg)](https://usw.sealos.io/?openapp=system-template%3FtemplateName%3Dperplexica)
-[![Deploy to RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/?app_id=267)
-[![Run on ClawCloud](https://raw.githubusercontent.com/ClawCloud/Run-Template/refs/heads/main/Run-on-ClawCloud.svg)](https://template.run.claw.cloud/?referralCode=U11MRQ8U9RM4&openapp=system-fastdeploy%3FtemplateName%3Dperplexica)
-[![Deploy on Hostinger](https://assets.hostinger.com/vps/deploy.svg)](https://www.hostinger.com/vps/docker-hosting?compose_url=https://raw.githubusercontent.com/ItzCrazyKns/Perplexica/refs/heads/master/docker-compose.yaml)
-
-## Upcoming Features
-
-- [ ] Adding more widgets, integrations, search sources
-- [ ] Adding ability to create custom agents (name T.B.D.)
-- [ ] Adding authentication
-
-## Support Us
-
-If you find Perplexica useful, consider giving us a star on GitHub. This helps more people discover Perplexica and supports the development of new features. Your support is greatly appreciated.
-
-### Donations
-
-We also accept donations to help sustain our project. If you would like to contribute, you can use the following options to donate. Thank you for your support!
-
-| Ethereum                                              |
-| ----------------------------------------------------- |
-| Address: `0xB025a84b2F269570Eb8D4b05DEdaA41D8525B6DD` |
-
-## Contribution
-
-Perplexica is built on the idea that AI and large language models should be easy for everyone to use. If you find bugs or have ideas, please share them in via GitHub Issues. For more information on contributing to Perplexica you can read the [CONTRIBUTING.md](CONTRIBUTING.md) file to learn more about Perplexica and how you can contribute to it.
-
-## Help and Support
-
-If you have any questions or feedback, please feel free to reach out to us. You can create an issue on GitHub or join our Discord server. There, you can connect with other users, share your experiences and reviews, and receive more personalized help. [Click here](https://discord.gg/EFwsmQDgAu) to join the Discord server. To discuss matters outside of regular support, feel free to contact me on Discord at `itzcrazykns`.
-
-Thank you for exploring Perplexica, the AI-powered search engine designed to enhance your search experience. We are constantly working to improve Perplexica and expand its capabilities. We value your feedback and contributions which help us make Perplexica even better. Don't forget to check back for updates and new features!
+Cliquez sur l'icone de mode dans la barre de saisie pour choisir :
+
+- **Rapide** (eclair) -- Pour les questions simples
+- **Standard** (loupe) -- Usage quotidien
+- **Approfondie** (couches) -- Pour les investigations
+
+### Upload de fichiers
+
+Cliquez sur le trombone pour joindre des documents (PDF, DOCX, TXT). Bokari les indexe et vous pouvez poser des questions sur leur contenu.
+
+### Page Decouverte
+
+Accedez a l'onglet "Decouverte" dans la sidebar pour parcourir les actualites du jour par theme.
+
+### Bibliotheque
+
+L'onglet "Bibliotheque" liste toutes vos conversations passees, triees par date.
+
+---
+
+## API
+
+Bokari expose une API REST pour l'integration programmatique.
+
+### Recherche
+
+```
+POST /api/search
+```
+
+Corps de la requete :
+
+```json
+{
+  "chatModel": {
+    "providerId": "uuid-du-provider",
+    "key": "gpt-4o-mini"
+  },
+  "embeddingModel": {
+    "providerId": "uuid-du-provider",
+    "key": "text-embedding-3-large"
+  },
+  "optimizationMode": "balanced",
+  "sources": ["web"],
+  "query": "Votre question ici",
+  "stream": false
+}
+```
+
+Reponse :
+
+```json
+{
+  "message": "La reponse generee avec citations...",
+  "sources": [
+    {
+      "content": "Extrait de la source...",
+      "metadata": {
+        "title": "Titre de la page",
+        "url": "https://example.com"
+      }
+    }
+  ]
+}
+```
+
+Le streaming SSE est disponible avec `"stream": true`.
+
+Pour la documentation complete de l'API, voir [docs/API/SEARCH.md](docs/API/SEARCH.md).
+
+---
+
+## STACK TECHNIQUE
+
+| Composant        | Technologie                          |
+|-----------------|--------------------------------------|
+| Framework       | Next.js 16 (App Router)             |
+| Langage         | TypeScript                           |
+| Style           | Tailwind CSS 3.3                     |
+| UI              | HeadlessUI, Radix UI, Lucide Icons  |
+| Animations      | Framer Motion                        |
+| Base de donnees | Supabase PostgreSQL                  |
+| ORM             | Drizzle ORM                          |
+| Auth            | Supabase Auth                        |
+| Recherche       | TinyFish API, SearXNG                |
+| LLM             | OpenAI, Anthropic, Google, Groq, Ollama |
+| TTS/STT         | ElevenLabs                           |
+| Deploiement     | Docker, Node.js                      |
+
+---
+
+## STRUCTURE DU PROJET
+
+```
+bokari/
+  src/
+    app/                    # Pages et routes API (Next.js App Router)
+      api/
+        chat/               # Endpoint principal du chat
+        search/             # API de recherche programmatique
+        auth/               # Authentification (register, login, logout)
+        chats/              # CRUD des conversations
+        discover/           # Flux d'actualites
+        tts/                # Text-to-speech (ElevenLabs)
+        stt/                # Speech-to-text (ElevenLabs)
+      discover/             # Page decouverte
+      library/              # Page bibliotheque
+      c/[chatId]/           # Page de conversation
+    components/             # Composants React
+      Chat.tsx              # Composant principal du chat
+      Sidebar.tsx           # Navigation laterale
+      MessageBox.tsx        # Affichage d'un message
+      MessageInput.tsx      # Barre de saisie
+      EmptyChat.tsx         # Etat initial (suggestions)
+      Settings/             # Dialogues de parametres
+      Discover/             # Cartes d'actualites
+    lib/
+      agents/               # Agents IA
+        search/             # Agent de recherche (classifier, researcher, writer)
+        media/              # Recherche d'images et videos
+      config/               # Gestion de la configuration
+      db/                   # Schema et migrations (Drizzle + Supabase)
+      hooks/                # Hooks React (useChat, useAuth)
+      models/               # Providers de modeles LLM
+      prompts/              # Prompts systeme
+      supabase/             # Client Supabase (browser + server)
+      search.ts             # Backend de recherche TinyFish
+      searxng.ts            # Integration SearXNG (fallback)
+  public/                   # Assets statiques
+  drizzle/                  # Migrations SQL
+  docs/                     # Documentation
+  docker-compose.yaml       # Configuration Docker
+```
+
+---
+
+## CONTRIBUER
+
+Les contributions sont les bienvenues. Consultez le guide [CONTRIBUTING.md](CONTRIBUTING.md) pour les details.
+
+En bref :
+
+1. Forkez le projet
+2. Creez une branche (`git checkout -b feature/ma-feature`)
+3. Codez et testez
+4. Soumettez une Pull Request
+
+Toute contribution doit respecter la licence du projet. Le credit a l'auteur original (Ousmane Dicko / Dicken AI) doit etre maintenu dans tous les forks et travaux derives.
+
+---
+
+## LICENCE
+
+Ce projet est distribue sous une **licence source-available non-commerciale**.
+
+En resume :
+
+- Vous pouvez consulter, forker et modifier le code pour un usage personnel et non-commercial
+- Vous devez crediter Ousmane Dicko / Dicken AI dans tout fork ou travail derive
+- Toute utilisation commerciale necessite une autorisation ecrite
+
+Pour les details complets, voir le fichier [LICENSE](LICENSE).
+
+Pour une licence commerciale, contactez **ousmane@dickenai.com**.
+
+---
+
+## CONTACT
+
+**Ousmane Dicko** -- Createur de Bokari
+
+- Email : ousmane@dickenai.com
+- Projet : Dicken AI
+
+---
+
+*Bokari -- Mars 2026*
+*Cree par Ousmane Dicko / Dicken AI*

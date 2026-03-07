@@ -1,0 +1,187 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
+import { supabase } from '@/lib/supabase/client';
+
+export interface User {
+  id: string;
+  name: string;
+  email: string;
+  plan: string;
+}
+
+interface AuthContextType {
+  user: User | null;
+  loading: boolean;
+  showAuthModal: boolean;
+  setShowAuthModal: (show: boolean) => void;
+  login: (email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  register: (name: string, email: string, password: string) => Promise<{ success: boolean; message?: string }>;
+  logout: () => Promise<void>;
+  requireAuth: () => boolean;
+  accessToken: string | null;
+}
+
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  loading: true,
+  showAuthModal: false,
+  setShowAuthModal: () => {},
+  login: async () => ({ success: false }),
+  register: async () => ({ success: false }),
+  logout: async () => {},
+  requireAuth: () => false,
+  accessToken: null,
+});
+
+export const useAuth = () => useContext(AuthContext);
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const initialized = useRef(false);
+
+  // Listen to Supabase auth state changes
+  useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({
+          id: session.user.id,
+          name: session.user.user_metadata?.name || '',
+          email: session.user.email || '',
+          plan: session.user.user_metadata?.plan || 'free',
+        });
+        setAccessToken(session.access_token);
+      }
+      setLoading(false);
+    });
+
+    // Listen for auth changes (login, logout, token refresh)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (session?.user) {
+          setUser({
+            id: session.user.id,
+            name: session.user.user_metadata?.name || '',
+            email: session.user.email || '',
+            plan: session.user.user_metadata?.plan || 'free',
+          });
+          setAccessToken(session.access_token);
+        } else {
+          setUser(null);
+          setAccessToken(null);
+        }
+        setLoading(false);
+      },
+    );
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const login = useCallback(async (email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase(),
+        password,
+      });
+
+      if (error) {
+        return { success: false, message: 'Email ou mot de passe incorrect' };
+      }
+
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          name: data.user.user_metadata?.name || '',
+          email: data.user.email || '',
+          plan: data.user.user_metadata?.plan || 'free',
+        });
+        setAccessToken(data.session?.access_token || null);
+        setShowAuthModal(false);
+        return { success: true };
+      }
+
+      return { success: false, message: 'Erreur de connexion' };
+    } catch {
+      return { success: false, message: 'Erreur reseau' };
+    }
+  }, []);
+
+  const register = useCallback(async (name: string, email: string, password: string) => {
+    try {
+      const { data, error } = await supabase.auth.signUp({
+        email: email.toLowerCase(),
+        password,
+        options: {
+          data: {
+            name,
+            plan: 'free',
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.includes('already registered')) {
+          return { success: false, message: 'Un compte avec cet email existe deja' };
+        }
+        return { success: false, message: error.message };
+      }
+
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          name: data.user.user_metadata?.name || name,
+          email: data.user.email || email,
+          plan: 'free',
+        });
+        setAccessToken(data.session?.access_token || null);
+        setShowAuthModal(false);
+        return { success: true };
+      }
+
+      return { success: false, message: 'Erreur lors de l\'inscription' };
+    } catch {
+      return { success: false, message: 'Erreur reseau' };
+    }
+  }, []);
+
+  const logout = useCallback(async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setAccessToken(null);
+  }, []);
+
+  const requireAuth = useCallback(() => {
+    if (!user) {
+      setShowAuthModal(true);
+      return false;
+    }
+    return true;
+  }, [user]);
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+        showAuthModal,
+        setShowAuthModal,
+        login,
+        register,
+        logout,
+        requireAuth,
+        accessToken,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};

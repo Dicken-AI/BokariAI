@@ -4,51 +4,113 @@ import { classify } from './classifier';
 import Researcher from './researcher';
 import { getWriterPrompt } from '@/lib/prompts/search/writer';
 import { WidgetExecutor } from './widgets';
-import db from '@/lib/db';
-import { chats, messages } from '@/lib/db/schema';
-import { and, eq, gt } from 'drizzle-orm';
+import supabase from '@/lib/db';
 import { TextBlock } from '@/lib/types';
+
+/**
+ * Fetch conversation memory for the current user/chat
+ * Returns recent chat topics to give Bokari context about past interactions
+ */
+async function fetchMemory(chatId: string): Promise<string> {
+  try {
+    // Get the user_id from this chat
+    const { data: chat } = await supabase
+      .from('chats')
+      .select('user_id')
+      .eq('id', chatId)
+      .maybeSingle();
+
+    if (!chat?.user_id) return '';
+
+    // Fetch last 10 chats from this user (excluding current one)
+    const { data: recentChats } = await supabase
+      .from('chats')
+      .select('id, title, created_at')
+      .eq('user_id', chat.user_id)
+      .neq('id', chatId)
+      .order('created_at', { ascending: false })
+      .limit(10);
+
+    if (!recentChats || recentChats.length === 0) return '';
+
+    // Fetch first message from each chat for context
+    const chatIds = recentChats.map((c: any) => c.id);
+    const { data: firstMessages } = await supabase
+      .from('messages')
+      .select('chat_id, query')
+      .in('chat_id', chatIds)
+      .order('created_at', { ascending: true });
+
+    // Build memory string: list of recent topics
+    const seenChats = new Set<string>();
+    const memories: string[] = [];
+
+    for (const chat of recentChats) {
+      if (seenChats.has(chat.id)) continue;
+      seenChats.add(chat.id);
+
+      const firstMsg = firstMessages?.find((m: any) => m.chat_id === chat.id);
+      const topic = chat.title || firstMsg?.query || '';
+      if (topic) {
+        memories.push(`- ${topic}`);
+      }
+    }
+
+    if (memories.length === 0) return '';
+
+    return `Sujets recemment recherches par cet utilisateur :\n${memories.join('\n')}`;
+  } catch (err) {
+    console.warn('[Bokari] Memory fetch failed:', err);
+    return '';
+  }
+}
 
 class SearchAgent {
   async searchAsync(session: SessionManager, input: SearchAgentInput) {
-    const exists = await db.query.messages.findFirst({
-      where: and(
-        eq(messages.chatId, input.chatId),
-        eq(messages.messageId, input.messageId),
-      ),
-    });
+    let exists: any = null;
+    try {
+      const { data } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('chat_id', input.chatId)
+        .eq('message_id', input.messageId)
+        .maybeSingle();
+      exists = data;
+    } catch (dbErr) {
+      console.error('[Bokari] DB error on findFirst:', dbErr);
+    }
 
-    if (!exists) {
-      await db.insert(messages).values({
-        chatId: input.chatId,
-        messageId: input.messageId,
-        backendId: session.id,
-        query: input.followUp,
-        createdAt: new Date().toISOString(),
-        status: 'answering',
-        responseBlocks: [],
-      });
-    } else {
-      await db
-        .delete(messages)
-        .where(
-          and(eq(messages.chatId, input.chatId), gt(messages.id, exists.id)),
-        )
-        .execute();
-      await db
-        .update(messages)
-        .set({
+    try {
+      if (!exists) {
+        await supabase.from('messages').insert({
+          chat_id: input.chatId,
+          message_id: input.messageId,
+          backend_id: session.id,
+          query: input.followUp,
+          created_at: new Date().toISOString(),
           status: 'answering',
-          backendId: session.id,
-          responseBlocks: [],
-        })
-        .where(
-          and(
-            eq(messages.chatId, input.chatId),
-            eq(messages.messageId, input.messageId),
-          ),
-        )
-        .execute();
+          response_blocks: [],
+        });
+      } else {
+        // Delete messages after current one
+        await supabase
+          .from('messages')
+          .delete()
+          .eq('chat_id', input.chatId)
+          .gt('id', exists.id);
+        // Reset current message
+        await supabase
+          .from('messages')
+          .update({
+            status: 'answering',
+            backend_id: session.id,
+            response_blocks: [],
+          })
+          .eq('chat_id', input.chatId)
+          .eq('message_id', input.messageId);
+      }
+    } catch (dbErr) {
+      console.error('[Bokari] DB error on message insert/update:', dbErr);
     }
 
     const classification = await classify({
@@ -89,9 +151,13 @@ class SearchAgent {
       });
     }
 
-    const [widgetOutputs, searchResults] = await Promise.all([
+    // Fetch memory in parallel with research (non-blocking)
+    const memoryPromise = fetchMemory(input.chatId);
+
+    const [widgetOutputs, searchResults, memory] = await Promise.all([
       widgetPromise,
       searchPromise,
+      memoryPromise,
     ]);
 
     session.emit('data', {
@@ -118,6 +184,7 @@ class SearchAgent {
       finalContextWithWidgets,
       input.config.systemInstructions,
       input.config.mode,
+      memory || undefined,
     );
     const answerStream = input.config.llm.streamText({
       messages: [
@@ -167,19 +234,18 @@ class SearchAgent {
 
     session.emit('end', {});
 
-    await db
-      .update(messages)
-      .set({
-        status: 'completed',
-        responseBlocks: session.getAllBlocks(),
-      })
-      .where(
-        and(
-          eq(messages.chatId, input.chatId),
-          eq(messages.messageId, input.messageId),
-        ),
-      )
-      .execute();
+    try {
+      await supabase
+        .from('messages')
+        .update({
+          status: 'completed',
+          response_blocks: session.getAllBlocks(),
+        })
+        .eq('chat_id', input.chatId)
+        .eq('message_id', input.messageId);
+    } catch (dbErr) {
+      console.error('[Bokari] DB error on message completion:', dbErr);
+    }
   }
 }
 

@@ -10,7 +10,7 @@ const Rewrite = ({
   return (
     <button
       onClick={() => rewrite(messageId)}
-      className="p-2 text-black/70 dark:text-white/70 rounded-full hover:bg-light-secondary dark:hover:bg-dark-secondary transition duration-200 hover:text-black dark:hover:text-white flex flex-row items-center space-x-1"
+      className="p-2 text-black/35 dark:text-white/30 rounded-xl hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all duration-200 hover:text-black/60 dark:hover:text-white/50 flex items-center gap-1"
     >
       <Repeat size={16} />
     </button>

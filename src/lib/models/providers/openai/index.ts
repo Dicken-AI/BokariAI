@@ -12,86 +12,16 @@ interface OpenAIConfig {
   baseURL: string;
 }
 
+import { BOKARI_MODEL_ROUTES } from './bokariRoutes';
+
 const defaultChatModels: Model[] = [
   {
-    name: 'GPT-3.5 Turbo',
-    key: 'gpt-3.5-turbo',
+    name: 'Bokari 1',
+    key: 'bokari-1',
   },
   {
-    name: 'GPT-4',
-    key: 'gpt-4',
-  },
-  {
-    name: 'GPT-4 turbo',
-    key: 'gpt-4-turbo',
-  },
-  {
-    name: 'GPT-4 omni',
-    key: 'gpt-4o',
-  },
-  {
-    name: 'GPT-4o (2024-05-13)',
-    key: 'gpt-4o-2024-05-13',
-  },
-  {
-    name: 'GPT-4 omni mini',
-    key: 'gpt-4o-mini',
-  },
-  {
-    name: 'GPT 4.1 nano',
-    key: 'gpt-4.1-nano',
-  },
-  {
-    name: 'GPT 4.1 mini',
-    key: 'gpt-4.1-mini',
-  },
-  {
-    name: 'GPT 4.1',
-    key: 'gpt-4.1',
-  },
-  {
-    name: 'GPT 5 nano',
-    key: 'gpt-5-nano',
-  },
-  {
-    name: 'GPT 5',
-    key: 'gpt-5',
-  },
-  {
-    name: 'GPT 5 Mini',
-    key: 'gpt-5-mini',
-  },
-  {
-    name: 'GPT 5 Pro',
-    key: 'gpt-5-pro',
-  },
-  {
-    name: 'GPT 5.1',
-    key: 'gpt-5.1',
-  },
-  {
-    name: 'GPT 5.2',
-    key: 'gpt-5.2',
-  },
-  {
-    name: 'GPT 5.2 Pro',
-    key: 'gpt-5.2-pro',
-  },
-  {
-    name: 'o1',
-    key: 'o1',
-  },
-  {
-    name: 'o3',
-    key: 'o3',
-  },
-  {
-    name: 'o3 Mini',
-    key: 'o3-mini',
-  },
-  {
-    name: 'o4 Mini',
-    key: 'o4-mini',
+    name: 'BokariCheap',
+    key: 'bokari-cheap',
   },
 ];
 

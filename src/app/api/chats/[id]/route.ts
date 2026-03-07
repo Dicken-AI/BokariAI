@@ -1,6 +1,5 @@
-import db from '@/lib/db';
-import { chats, messages } from '@/lib/db/schema';
-import { eq } from 'drizzle-orm';
+import { createServerClient } from '@/lib/supabase/server';
+import { mapChat, mapMessages } from '@/lib/supabase/mappers';
 
 export const GET = async (
   req: Request,
@@ -8,24 +7,29 @@ export const GET = async (
 ) => {
   try {
     const { id } = await params;
+    const supabase = createServerClient(req);
 
-    const chatExists = await db.query.chats.findFirst({
-      where: eq(chats.id, id),
-    });
+    const { data: chat, error: chatError } = await supabase
+      .from('chats')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
 
-    if (!chatExists) {
+    if (chatError) throw chatError;
+    if (!chat) {
       return Response.json({ message: 'Chat not found' }, { status: 404 });
     }
 
-    const chatMessages = await db.query.messages.findMany({
-      where: eq(messages.chatId, id),
-    });
+    const { data: messages, error: msgError } = await supabase
+      .from('messages')
+      .select('*')
+      .eq('chat_id', id)
+      .order('id', { ascending: true });
+
+    if (msgError) throw msgError;
 
     return Response.json(
-      {
-        chat: chatExists,
-        messages: chatMessages,
-      },
+      { chat: mapChat(chat), messages: mapMessages(messages || []) },
       { status: 200 },
     );
   } catch (err) {
@@ -43,17 +47,12 @@ export const DELETE = async (
 ) => {
   try {
     const { id } = await params;
+    const supabase = createServerClient(req);
 
-    const chatExists = await db.query.chats.findFirst({
-      where: eq(chats.id, id),
-    });
+    await supabase.from('messages').delete().eq('chat_id', id);
+    const { error } = await supabase.from('chats').delete().eq('id', id);
 
-    if (!chatExists) {
-      return Response.json({ message: 'Chat not found' }, { status: 404 });
-    }
-
-    await db.delete(chats).where(eq(chats.id, id)).execute();
-    await db.delete(messages).where(eq(messages.chatId, id)).execute();
+    if (error) throw error;
 
     return Response.json(
       { message: 'Chat deleted successfully' },

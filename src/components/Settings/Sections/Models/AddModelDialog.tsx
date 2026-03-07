@@ -140,7 +140,7 @@ const AddModel = ({
                       <button
                         type="submit"
                         disabled={loading}
-                        className="px-4 py-2 rounded-lg text-[13px] bg-sky-500 text-white font-medium disabled:opacity-85 hover:opacity-85 active:scale-95 transition duration-200"
+                        className="px-4 py-2 rounded-lg text-[13px] bg-bokari-500 text-white font-medium disabled:opacity-85 hover:opacity-85 active:scale-95 transition duration-200"
                       >
                         {loading ? (
                           <Loader2 className="animate-spin" size={16} />

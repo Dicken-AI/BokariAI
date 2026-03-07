@@ -1,7 +1,7 @@
 import z from 'zod';
 import { ResearchAction } from '../../types';
 import { Chunk, SearchResultsResearchBlock } from '@/lib/types';
-import { searchSearxng } from '@/lib/searxng';
+import { searchSearxng } from '@/lib/search';
 
 const schema = z.object({
   queries: z.array(z.string()).describe('List of social search queries'),

@@ -2,8 +2,8 @@ import ChatWindow from '@/components/ChatWindow';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Chat - Perplexica',
-  description: 'Chat with the internet, chat with Perplexica.',
+  title: 'Bokari - Votre Journaliste IA',
+  description: 'Posez vos questions, Bokari recherche, verifie et vous informe.',
 };
 
 const Home = () => {

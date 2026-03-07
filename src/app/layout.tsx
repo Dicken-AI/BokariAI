@@ -1,27 +1,27 @@
 export const dynamic = 'force-dynamic';
 
 import type { Metadata } from 'next';
-import { Montserrat } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import './globals.css';
 import { cn } from '@/lib/utils';
 import Sidebar from '@/components/Sidebar';
 import { Toaster } from 'sonner';
 import ThemeProvider from '@/components/theme/Provider';
-import configManager from '@/lib/config';
-import SetupWizard from '@/components/Setup/SetupWizard';
 import { ChatProvider } from '@/lib/hooks/useChat';
+import { AuthProvider } from '@/lib/hooks/useAuth';
+import AuthModal from '@/components/AuthModal';
 
-const montserrat = Montserrat({
-  weight: ['300', '400', '500', '700'],
+const inter = Inter({
+  weight: ['300', '400', '500', '600'],
   subsets: ['latin'],
   display: 'swap',
-  fallback: ['Arial', 'sans-serif'],
+  fallback: ['system-ui', 'sans-serif'],
 });
 
 export const metadata: Metadata = {
-  title: 'Perplexica - Chat with the internet',
+  title: 'Bokari - Journaliste IA Africain',
   description:
-    'Perplexica is an AI powered chatbot that is connected to the internet.',
+    'Bokari est un journaliste IA intelligent qui combat les fake news en Afrique. Recherche, verifie, informe.',
 };
 
 export default function RootLayout({
@@ -29,16 +29,14 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const setupComplete = configManager.isSetupComplete();
-  const configSections = configManager.getUIConfigSections();
-
   return (
-    <html className="h-full" lang="en" suppressHydrationWarning>
-      <body className={cn('h-full antialiased', montserrat.className)}>
+    <html className="h-full" lang="fr" suppressHydrationWarning>
+      <body className={cn('h-full antialiased', inter.className)} suppressHydrationWarning>
         <ThemeProvider>
-          {setupComplete ? (
+          <AuthProvider>
             <ChatProvider>
               <Sidebar>{children}</Sidebar>
+              <AuthModal />
               <Toaster
                 toastOptions={{
                   unstyled: true,
@@ -49,9 +47,7 @@ export default function RootLayout({
                 }}
               />
             </ChatProvider>
-          ) : (
-            <SetupWizard configSections={configSections} />
-          )}
+          </AuthProvider>
         </ThemeProvider>
       </body>
     </html>

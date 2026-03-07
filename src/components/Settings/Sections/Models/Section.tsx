@@ -46,10 +46,10 @@ const Models = ({
       <div className="flex flex-col px-6 gap-y-4">
         {providers.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4 rounded-lg border-2 border-dashed border-light-200 dark:border-dark-200 bg-light-secondary/10 dark:bg-dark-secondary/10">
-            <div className="p-3 rounded-full bg-sky-500/10 dark:bg-sky-500/10 mb-3">
+            <div className="p-3 rounded-full bg-bokari-500/10 dark:bg-bokari-500/10 mb-3">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                className="w-8 h-8 text-sky-500"
+                className="w-8 h-8 text-bokari-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"

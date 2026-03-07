@@ -1,82 +1,49 @@
-# How to Contribute to Perplexica
+# Comment contribuer a Bokari
 
-Thanks for your interest in contributing to Perplexica! Your help makes this project better. This guide explains how to contribute effectively.
+Merci de ton interet pour contribuer a Bokari. Ce guide explique comment participer au projet.
 
-Perplexica is a modern AI chat application with advanced search capabilities.
+## Structure du projet
 
-## Project Structure
+Bokari est une application Next.js avec les dossiers principaux suivants :
 
-Perplexica's codebase is organized as follows:
+- `src/app/` - Pages et routes API (App Router)
+- `src/components/` - Composants React (chat, sidebar, settings, etc.)
+- `src/lib/` - Logique metier
+  - `src/lib/agents/` - Agents de recherche, media, etc.
+  - `src/lib/config/` - Gestion de la configuration
+  - `src/lib/db/` - Base de donnees (Supabase)
+  - `src/lib/hooks/` - Hooks React personnalises
+  - `src/lib/models/` - Providers de modeles LLM
+  - `src/lib/prompts/` - Prompts systeme
+  - `src/lib/supabase/` - Client et utilitaires Supabase
+  - `src/lib/search.ts` - Backend de recherche (TinyFish)
+  - `src/lib/searxng.ts` - Integration SearXNG (fallback)
 
-- **UI Components and Pages**:
-  - **Components (`src/components`)**: Reusable UI components.
-  - **Pages and Routes (`src/app`)**: Next.js app directory structure with page components.
-    - Main app routes include: home (`/`), chat (`/c`), discover (`/discover`), and library (`/library`).
-  - **API Routes (`src/app/api`)**: Server endpoints implemented with Next.js route handlers.
-- **Backend Logic (`src/lib`)**: Contains all the backend functionality including search, database, and API logic.
-  - The search system lives in `src/lib/agents/search`.
-  - The search pipeline is split into classification, research, widgets, and writing.
-  - Database functionality is in `src/lib/db`.
-  - Chat model and embedding model providers are in `src/lib/models/providers`, and models are loaded via `src/lib/models/registry.ts`.
-  - Prompt templates are in `src/lib/prompts`.
-  - SearXNG integration is in `src/lib/searxng.ts`.
-  - Upload search lives in `src/lib/uploads`.
+## Comment contribuer
 
-### Where to make changes
+1. Fork le projet
+2. Cree une branche pour ta feature (`git checkout -b feature/ma-feature`)
+3. Fais tes modifications
+4. Teste localement (`npm run dev`)
+5. Commit tes changements (`git commit -m "feat: description"`)
+6. Push ta branche (`git push origin feature/ma-feature`)
+7. Ouvre une Pull Request
 
-If you are not sure where to start, use this section as a map.
+## Conventions
 
-- **Search behavior and reasoning**
+- **Commits** : utilise les [Conventional Commits](https://www.conventionalcommits.org/) (`feat:`, `fix:`, `docs:`, etc.)
+- **Style** : le projet utilise Prettier pour le formatage (`npm run format:write`)
+- **Langue** : l'interface est en francais, le code et les commentaires en anglais
+- **Tests** : verifie que le build passe avant de soumettre (`npm run build`)
 
-  - `src/lib/agents/search` contains the core chat and search pipeline.
-  - `classifier.ts` decides whether research is needed and what should run.
-  - `researcher/` gathers information in the background.
+## Signaler un bug
 
-- **Add or change a search capability**
+Ouvre une issue sur GitHub avec :
+- Une description claire du probleme
+- Les etapes pour reproduire
+- Le comportement attendu vs observe
+- Ta configuration (OS, navigateur, version de Node)
 
-  - Research tools (web, academic, discussions, uploads, scraping) live in `src/lib/agents/search/researcher/actions`.
-  - Tools are registered in `src/lib/agents/search/researcher/actions/index.ts`.
+## Attribution
 
-- **Add or change widgets**
-
-  - Widgets live in `src/lib/agents/search/widgets`.
-  - Widgets run in parallel with research and show structured results in the UI.
-
-- **Model integrations**
-
-  - Providers live in `src/lib/models/providers`.
-  - Add new providers there and wire them into the model registry so they show up in the app.
-
-- **Architecture docs**
-  - High level overview: `docs/architecture/README.md`
-  - High level flow: `docs/architecture/WORKING.md`
-
-## API Documentation
-
-Perplexica includes API documentation for programmatic access.
-
-- **Search API**: For detailed documentation, see `docs/API/SEARCH.md`.
-
-## Setting Up Your Environment
-
-Before diving into coding, setting up your local environment is key. Here's what you need to do:
-
-1. Run `npm install` to install all dependencies.
-2. Use `npm run dev` to start the application in development mode.
-3. Open http://localhost:3000 and complete the setup in the UI (API keys, models, search backend URL, etc.).
-
-Database migrations are applied automatically on startup.
-
-For full installation options (Docker and non Docker), see the installation guide in the repository README.
-
-**Please note**: Docker configurations are present for setting up production environments, whereas `npm run dev` is used for development purposes.
-
-## Coding and Contribution Practices
-
-Before committing changes:
-
-1. Ensure that your code functions correctly by thorough testing.
-2. Always run `npm run format:write` to format your code according to the project's coding standards. This helps maintain consistency and code quality.
-3. We currently do not have a code of conduct, but it is in the works. In the meantime, please be mindful of how you engage with the project and its community.
-
-Following these steps will help maintain the integrity of Perplexica's codebase and facilitate a smoother integration of your valuable contributions. Thank you for your support and commitment to improving Perplexica.
+En contribuant, tu acceptes que tes contributions soient soumises aux termes de la licence du projet. Le projet reste sous la propriete de Ousmane Dicko / Dicken AI.

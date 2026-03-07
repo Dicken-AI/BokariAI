@@ -1,21 +1,94 @@
-MIT License
+Bokari Source Available License
+Version 1.0 - March 2026
 
-Copyright (c) 2026 ItzCrazyKns
+Copyright (c) 2026 Ousmane Dicko / Dicken AI
+All rights reserved.
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+TERMS AND CONDITIONS
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. DEFINITIONS
+
+"Software" refers to Bokari and all associated source code, documentation,
+and assets contained in this repository.
+
+"Author" refers to Ousmane Dicko and Dicken AI.
+
+"Commercial Use" means any use of the Software that is primarily intended
+for or directed toward commercial advantage or monetary compensation,
+including but not limited to: selling the Software, offering the Software
+as a paid service, using the Software in a product or service that generates
+revenue, or incorporating the Software into a commercial offering.
+
+2. PERMITTED USE
+
+You are permitted to:
+
+  a) View, download, and study the source code for personal, educational,
+     or research purposes.
+
+  b) Fork this repository and create derivative works, provided that:
+     - The original Author (Ousmane Dicko / Dicken AI) is clearly credited
+       in all copies, forks, and derivative works.
+     - This license file is included, unmodified, in all copies and
+       derivative works.
+     - A visible attribution notice is maintained in the project README
+       and in any user-facing documentation.
+
+  c) Use the Software for personal, non-commercial projects.
+
+  d) Submit contributions (pull requests) to the original repository.
+
+3. RESTRICTIONS
+
+You are NOT permitted to:
+
+  a) Use the Software, in whole or in part, for any Commercial Use without
+     prior written permission from the Author.
+
+  b) Remove, alter, or obscure any attribution notices, copyright notices,
+     or references to the Author.
+
+  c) Sublicense, sell, rent, lease, or otherwise transfer rights to the
+     Software to any third party.
+
+  d) Distribute modified versions of the Software without clear attribution
+     to the original Author and a link to the original repository.
+
+  e) Claim authorship or ownership of the Software or any substantial
+     portion thereof.
+
+4. COMMERCIAL LICENSING
+
+If you wish to use the Software for Commercial Use, you must obtain a
+commercial license by contacting:
+
+  Ousmane Dicko
+  Email: ousmane@dickenai.com
+
+Commercial licensing terms will be negotiated on a case-by-case basis.
+
+5. ATTRIBUTION REQUIREMENTS
+
+All forks and derivative works must include:
+
+  a) The following notice in a prominent location (e.g., README):
+     "Based on Bokari, created by Ousmane Dicko / Dicken AI"
+
+  b) A link to the original repository.
+
+  c) This license file, unmodified.
+
+6. NO WARRANTY
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN
+ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
+WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+7. TERMINATION
+
+Your rights under this license terminate automatically if you fail to comply
+with any of its terms. Upon termination, you must destroy all copies of the
+Software in your possession.

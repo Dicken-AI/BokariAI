@@ -13,6 +13,7 @@ import {
 import crypto from 'crypto';
 import { useParams, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { authFetch } from '@/lib/supabase/fetch';
 import { getSuggestions } from '../actions';
 import { MinimalProvider } from '../models/types';
 import { getAutoMediaSearch } from '../config/clientRegistry';
@@ -181,11 +182,8 @@ const loadMessages = async (
   setFiles: (files: File[]) => void,
   setFileIds: (fileIds: string[]) => void,
 ) => {
-  const res = await fetch(`/api/chats/${chatId}`, {
+  const res = await authFetch(`/api/chats/${chatId}`, {
     method: 'GET',
-    headers: {
-      'Content-Type': 'application/json',
-    },
   });
 
   if (res.status === 404) {
@@ -196,7 +194,10 @@ const loadMessages = async (
 
   const data = await res.json();
 
-  const messages = data.messages as Message[];
+  const messages = ((data.messages || []) as Message[]).map((msg) => ({
+    ...msg,
+    responseBlocks: msg.responseBlocks || [],
+  }));
 
   setMessages(messages);
 
@@ -204,7 +205,7 @@ const loadMessages = async (
   messages.forEach((msg) => {
     history.push(['human', msg.query]);
 
-    const textBlocks = msg.responseBlocks
+    const textBlocks = (msg.responseBlocks || [])
       .filter(
         (block): block is Block & { type: 'text' } => block.type === 'text',
       )
@@ -222,19 +223,18 @@ const loadMessages = async (
     document.title = messages[0].query;
   }
 
-  const files = data.chat.files.map((file: any) => {
-    return {
-      fileName: file.name,
-      fileExtension: file.name.split('.').pop(),
-      fileId: file.fileId,
-    };
-  });
+  const rawFiles = Array.isArray(data.chat?.files) ? data.chat.files : [];
+  const files = rawFiles.map((file: any) => ({
+    fileName: file.name,
+    fileExtension: file.name?.split('.').pop() || '',
+    fileId: file.fileId,
+  }));
 
   setFiles(files);
   setFileIds(files.map((file: File) => file.fileId));
 
   chatHistory.current = history;
-  setSources(data.chat.sources);
+  setSources(Array.isArray(data.chat?.sources) ? data.chat.sources : []);
   setIsMessagesLoaded(true);
 };
 
@@ -320,20 +320,22 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       let thinkingEnded = false;
       let suggestions: string[] = [];
 
-      const sourceBlocks = msg.responseBlocks.filter(
+      const blocks = msg.responseBlocks || [];
+      const sourceBlocks = blocks.filter(
         (block): block is Block & { type: 'source' } => block.type === 'source',
       );
       const sources = sourceBlocks.flatMap((block) => block.data);
 
-      const widgetBlocks = msg.responseBlocks
+      const widgetBlocks = blocks
         .filter((b) => b.type === 'widget')
         .map((b) => b.data) as Widget[];
 
-      msg.responseBlocks.forEach((block) => {
+      blocks.forEach((block) => {
         if (block.type === 'text') {
           let processedText = block.data;
-          const citationRegex = /\[([^\]]+)\]/g;
-          const regex = /\[(\d+)\]/g;
+          // Only match [number] or [1,2,3] — NOT markdown links [text](url)
+          const citationRegex = /\[(\d+(?:\s*,\s*\d+)*)\](?!\()/g;
+          const regex = /\[(\d+)\](?!\()/g;
 
           if (processedText.includes('<think>')) {
             const openThinkTag = processedText.match(/<think>/g)?.length || 0;
@@ -369,7 +371,21 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
                     const url = source?.metadata?.url;
 
                     if (url) {
-                      return `<citation href="${url}">${numStr}</citation>`;
+                      // Short name: use domain like "Reuters", "BBC", "Le Monde"
+                      let shortName = '';
+                      try {
+                        const hostname = new URL(url).hostname.replace('www.', '');
+                        // Extract brand name from domain (e.g. "bbc.com" -> "BBC", "lemonde.fr" -> "Le Monde")
+                        const domainParts = hostname.split('.');
+                        const brand = domainParts[0];
+                        shortName = brand.length <= 4
+                          ? brand.toUpperCase()
+                          : brand.charAt(0).toUpperCase() + brand.slice(1);
+                      } catch {
+                        shortName = `Source ${number}`;
+                      }
+                      const fullTitle = source?.metadata?.title || shortName;
+                      return `<citation href="${url}" title="${fullTitle}">${shortName}</citation>`;
                     } else {
                       return ``;
                     }
@@ -421,7 +437,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
         isReconnectingRef.current = true;
 
-        const res = await fetch(`/api/reconnect/${lastMsg.backendId}`, {
+        const res = await authFetch(`/api/reconnect/${lastMsg.backendId}`, {
           method: 'POST',
         });
 
@@ -567,7 +583,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
       if (data.type === 'researchComplete') {
         setResearchEnded(true);
         if (
-          message.responseBlocks.find(
+          (message.responseBlocks || []).find(
             (b) => b.type === 'source' && b.data.length > 0,
           )
         ) {
@@ -579,12 +595,12 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setMessages((prev) =>
           prev.map((msg) => {
             if (msg.messageId === messageId) {
-              const exists = msg.responseBlocks.findIndex(
+              const exists = (msg.responseBlocks || []).findIndex(
                 (b) => b.id === data.block.id,
               );
 
               if (exists !== -1) {
-                const existingBlocks = [...msg.responseBlocks];
+                const existingBlocks = [...(msg.responseBlocks || [])];
                 existingBlocks[exists] = data.block;
 
                 return {
@@ -595,7 +611,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
               return {
                 ...msg,
-                responseBlocks: [...msg.responseBlocks, data.block],
+                responseBlocks: [...(msg.responseBlocks || []), data.block],
               };
             }
             return msg;
@@ -614,7 +630,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
         setMessages((prev) =>
           prev.map((msg) => {
             if (msg.messageId === messageId) {
-              const updatedBlocks = msg.responseBlocks.map((block) => {
+              const updatedBlocks = (msg.responseBlocks || []).map((block) => {
                 if (block.id === data.blockId) {
                   const updatedBlock = { ...block };
                   applyPatch(updatedBlock, data.patch);
@@ -645,7 +661,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
           ['human', message.query],
           [
             'assistant',
-            currentMsg?.responseBlocks.find((b) => b.type === 'text')?.data ||
+            (currentMsg?.responseBlocks || []).find((b) => b.type === 'text')?.data ||
               '',
           ],
         ];
@@ -680,10 +696,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
         // Check if there are sources and no suggestions
 
-        const hasSourceBlocks = currentMsg?.responseBlocks.some(
+        const hasSourceBlocks = (currentMsg?.responseBlocks || []).some(
           (block) => block.type === 'source' && block.data.length > 0,
         );
-        const hasSuggestions = currentMsg?.responseBlocks.some(
+        const hasSuggestions = (currentMsg?.responseBlocks || []).some(
           (block) => block.type === 'suggestion',
         );
 
@@ -700,7 +716,7 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
               if (msg.messageId === messageId) {
                 return {
                   ...msg,
-                  responseBlocks: [...msg.responseBlocks, suggestionBlock],
+                  responseBlocks: [...(msg.responseBlocks || []), suggestionBlock],
                 };
               }
               return msg;
@@ -742,11 +758,8 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
 
     const messageIndex = messages.findIndex((m) => m.messageId === messageId);
 
-    const res = await fetch('/api/chat', {
+    const res = await authFetch('/api/chat', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
       body: JSON.stringify({
         content: message,
         message: {

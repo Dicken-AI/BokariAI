@@ -19,6 +19,7 @@ import {
 } from 'openai/resources/index.mjs';
 import { Message } from '@/lib/types';
 import { repairJson } from '@toolsycc/json-repair';
+import { BOKARI_MODEL_ROUTES } from './bokariRoutes';
 
 type OpenAIConfig = {
   apiKey: string;
@@ -27,11 +28,18 @@ type OpenAIConfig = {
   options?: GenerateOptions;
 };
 
+// Resolve Bokari virtual model names to actual OpenAI model keys
+const resolveModel = (model: string): string => {
+  return BOKARI_MODEL_ROUTES[model] || model;
+};
+
 class OpenAILLM extends BaseLLM<OpenAIConfig> {
   openAIClient: OpenAI;
+  resolvedModel: string;
 
   constructor(protected config: OpenAIConfig) {
     super(config);
+    this.resolvedModel = resolveModel(this.config.model);
 
     this.openAIClient = new OpenAI({
       apiKey: this.config.apiKey,
@@ -84,7 +92,7 @@ class OpenAILLM extends BaseLLM<OpenAIConfig> {
     });
 
     const response = await this.openAIClient.chat.completions.create({
-      model: this.config.model,
+      model: this.resolvedModel,
       tools: openaiTools.length > 0 ? openaiTools : undefined,
       messages: this.convertToOpenAIMessages(input.messages),
       temperature:
@@ -141,7 +149,7 @@ class OpenAILLM extends BaseLLM<OpenAIConfig> {
     });
 
     const stream = await this.openAIClient.chat.completions.create({
-      model: this.config.model,
+      model: this.resolvedModel,
       messages: this.convertToOpenAIMessages(input.messages),
       tools: openaiTools.length > 0 ? openaiTools : undefined,
       temperature:
@@ -197,7 +205,7 @@ class OpenAILLM extends BaseLLM<OpenAIConfig> {
   async generateObject<T>(input: GenerateObjectInput): Promise<T> {
     const response = await this.openAIClient.chat.completions.parse({
       messages: this.convertToOpenAIMessages(input.messages),
-      model: this.config.model,
+      model: this.resolvedModel,
       temperature:
         input.options?.temperature ?? this.config.options?.temperature ?? 1.0,
       top_p: input.options?.topP ?? this.config.options?.topP,
@@ -233,7 +241,7 @@ class OpenAILLM extends BaseLLM<OpenAIConfig> {
     let recievedObj: string = '';
 
     const stream = this.openAIClient.responses.stream({
-      model: this.config.model,
+      model: this.resolvedModel,
       input: input.messages,
       temperature:
         input.options?.temperature ?? this.config.options?.temperature ?? 1.0,

@@ -1,38 +1,15 @@
-# Perplexica Architecture
+# Architecture de Bokari
 
-Perplexica is a Next.js application that combines an AI chat experience with search.
+Bokari est une application Next.js qui combine un chat IA avec des capacites de recherche avancees.
 
-For a high level flow, see [WORKING.md](WORKING.md). For deeper implementation details, see [CONTRIBUTING.md](../../CONTRIBUTING.md).
+Pour comprendre comment Bokari traite une requete de bout en bout, voir [WORKING.md](WORKING.md).
 
-## Key components
+## Composants principaux
 
-1. **User Interface**
-
-   - A web based UI that lets users chat, search, and view citations.
-
-2. **API Routes**
-
-   - `POST /api/chat` powers the chat UI.
-   - `POST /api/search` provides a programmatic search endpoint.
-   - `GET /api/providers` lists available providers and model keys.
-
-3. **Agents and Orchestration**
-
-   - The system classifies the question first.
-   - It can run research and widgets in parallel.
-   - It generates the final answer and includes citations.
-
-4. **Search Backend**
-
-   - A meta search backend is used to fetch relevant web results when research is enabled.
-
-5. **LLMs (Large Language Models)**
-
-   - Used for classification, writing answers, and producing citations.
-
-6. **Embedding Models**
-
-   - Used for semantic search over user uploaded files.
-
-7. **Storage**
-   - Chats and messages are stored so conversations can be reloaded.
+1. **Interface utilisateur** - Chat web avec citations et sources
+2. **Routes API** - `POST /api/chat`, `POST /api/search`, `GET /api/providers`
+3. **Agents et orchestration** - Classification, recherche et widgets en parallele
+4. **Moteur de recherche** - TinyFish (principal) + SearXNG (fallback)
+5. **LLMs** - Classification, generation de reponses, citations
+6. **Modeles d'embedding** - Recherche semantique sur les fichiers uploades
+7. **Stockage** - Supabase PostgreSQL pour chats et messages

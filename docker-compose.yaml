@@ -1,14 +1,13 @@
 services:
-  perplexica:
-    image: itzcrazykns1337/perplexica:latest
+  bokari:
     build:
       context: .
     ports:
       - '3000:3000'
     volumes:
-      - data:/home/perplexica/data
+      - data:/home/bokari/data
     restart: unless-stopped
 
 volumes:
   data:
-    name: 'perplexica-data'
+    name: 'bokari-data'

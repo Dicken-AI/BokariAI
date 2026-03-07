@@ -1,72 +1,49 @@
-# How Perplexica Works
+# Comment fonctionne Bokari
 
-This is a high level overview of how Perplexica answers a question.
+Vue d'ensemble du traitement d'une question par Bokari.
 
-If you want a component level overview, see [README.md](README.md).
+## Que se passe-t-il quand vous posez une question
 
-If you want implementation details, see [CONTRIBUTING.md](../../CONTRIBUTING.md).
+Quand vous envoyez un message, l'app appelle `POST /api/chat`.
 
-## What happens when you ask a question
+A haut niveau, trois etapes :
 
-When you send a message in the UI, the app calls `POST /api/chat`.
-
-At a high level, we do three things:
-
-1. Classify the question and decide what to do next.
-2. Run research and widgets in parallel.
-3. Write the final answer and include citations.
+1. Classifier la question et decider quoi faire
+2. Lancer la recherche et les widgets en parallele
+3. Rediger la reponse finale avec citations
 
 ## Classification
 
-Before searching or answering, we run a classification step.
+Avant toute recherche, une etape de classification decide :
 
-This step decides things like:
-
-- Whether we should do research for this question
-- Whether we should show any widgets
-- How to rewrite the question into a clearer standalone form
+- Si une recherche est necessaire
+- Quels widgets afficher
+- Comment reformuler la question
 
 ## Widgets
 
-Widgets are small, structured helpers that can run alongside research.
+Les widgets sont des helpers structures (meteo, cours boursiers, calculs) qui tournent en parallele avec la recherche.
 
-Examples include weather, stocks, and simple calculations.
+## Recherche
 
-If a widget is relevant, we show it in the UI while the answer is still being generated.
+Si necessaire, le Researcher Agent lance des recherches via TinyFish ou SearXNG, extrait le contenu des pages, et compile les sources.
 
-Widgets are helpful context for the answer, but they are not part of what the model should cite.
+## Modes d'optimisation
 
-## Research
+- `speed` - Reponse rapide, ~5-10 sources
+- `balanced` - Equilibre vitesse/precision, ~15-20 sources
+- `quality` - Investigation complete, 30-100 sources
 
-If research is needed, we gather information in the background while widgets can run.
+## Citations
 
-Depending on configuration, research may include web lookup and searching user uploaded files.
+Le modele cite les references utilisees. L'interface affiche ces citations avec les liens vers les sources.
 
-## Answer generation
+## API Search
 
-Once we have enough context, the chat model generates the final response.
+Pour integrer Bokari dans un autre produit : `POST /api/search`.
 
-You can control the tradeoff between speed and quality using `optimizationMode`:
+Retourne :
+- `message` : la reponse generee
+- `sources` : les references utilisees
 
-- `speed`
-- `balanced`
-- `quality`
-
-## How citations work
-
-We prompt the model to cite the references it used. The UI then renders those citations alongside the supporting links.
-
-## Search API
-
-If you are integrating Perplexica into another product, you can call `POST /api/search`.
-
-It returns:
-
-- `message`: the generated answer
-- `sources`: supporting references used for the answer
-
-You can also enable streaming by setting `stream: true`.
-
-## Image and video search
-
-Image and video search use separate endpoints (`POST /api/images` and `POST /api/videos`). We generate a focused query using the chat model, then fetch matching results from a search backend.
+Streaming disponible avec `stream: true`.

@@ -5,10 +5,9 @@ import SearchAgent from '@/lib/agents/search';
 import SessionManager from '@/lib/session';
 import { ChatTurnMessage } from '@/lib/types';
 import { SearchSources } from '@/lib/agents/search/types';
-import db from '@/lib/db';
-import { eq } from 'drizzle-orm';
-import { chats } from '@/lib/db/schema';
+import supabase from '@/lib/db';
 import UploadManager from '@/lib/uploads/manager';
+import { createServerClient } from '@/lib/supabase/server';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -73,26 +72,26 @@ const ensureChatExists = async (input: {
   sources: SearchSources[];
   query: string;
   fileIds: string[];
+  userId?: string;
 }) => {
   try {
-    const exists = await db.query.chats
-      .findFirst({
-        where: eq(chats.id, input.id),
-      })
-      .execute();
+    const { data: exists } = await supabase
+      .from('chats')
+      .select('id')
+      .eq('id', input.id)
+      .maybeSingle();
 
     if (!exists) {
-      await db.insert(chats).values({
+      await supabase.from('chats').insert({
         id: input.id,
-        createdAt: new Date().toISOString(),
-        sources: input.sources,
+        user_id: input.userId || null,
+        created_at: new Date().toISOString(),
         title: input.query,
-        files: input.fileIds.map((id) => {
-          return {
-            fileId: id,
-            name: UploadManager.getFile(id)?.name || 'Uploaded File',
-          };
-        }),
+        sources: input.sources || [],
+        files: input.fileIds.map((id) => ({
+          fileId: id,
+          name: UploadManager.getFile(id)?.name || 'Uploaded File',
+        })),
       });
     }
   } catch (err) {
@@ -223,13 +222,22 @@ export const POST = async (req: Request) => {
         fileIds: body.files,
         systemInstructions: body.systemInstructions || 'None',
       },
+    }).catch((err) => {
+      console.error('[Bokari] Search agent error:', err);
+      session.emit('error', {
+        data: 'Une erreur est survenue lors de la recherche. Veuillez reessayer.',
+      });
     });
 
+    // Get user from Supabase Auth
+    const authClient = createServerClient(req);
+    const { data: { user } } = await authClient.auth.getUser();
     ensureChatExists({
       id: body.message.chatId,
       sources: body.sources as SearchSources[],
       fileIds: body.files,
       query: body.message.content,
+      userId: user?.id,
     });
 
     req.signal.addEventListener('abort', () => {

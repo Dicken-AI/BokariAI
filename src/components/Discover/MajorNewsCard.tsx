@@ -1,4 +1,5 @@
 import { Discover } from '@/app/discover/page';
+import { ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 
 const MajorNewsCard = ({
@@ -7,64 +8,77 @@ const MajorNewsCard = ({
 }: {
   item: Discover;
   isLeft?: boolean;
-}) => (
-  <Link
-    href={`/?q=Summary: ${item.url}`}
-    className="w-full group flex flex-row items-stretch gap-6 h-60 py-3"
-    target="_blank"
-  >
-    {isLeft ? (
-      <>
-        <div className="relative w-80 h-full overflow-hidden rounded-2xl flex-shrink-0">
-          <img
-            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-            src={
-              new URL(item.thumbnail).origin +
-              new URL(item.thumbnail).pathname +
-              `?id=${new URL(item.thumbnail).searchParams.get('id')}`
-            }
-            alt={item.title}
-          />
-        </div>
-        <div className="flex flex-col justify-center flex-1 py-4">
-          <h2
-            className="text-3xl font-light mb-3 leading-tight line-clamp-3 group-hover:text-cyan-500 dark:group-hover:text-cyan-300 transition duration-200"
-            style={{ fontFamily: 'PP Editorial, serif' }}
-          >
-            {item.title}
-          </h2>
-          <p className="text-black/60 dark:text-white/60 text-base leading-relaxed line-clamp-4">
-            {item.content}
-          </p>
-        </div>
-      </>
-    ) : (
-      <>
-        <div className="flex flex-col justify-center flex-1 py-4">
-          <h2
-            className="text-3xl font-light mb-3 leading-tight line-clamp-3 group-hover:text-cyan-500 dark:group-hover:text-cyan-300 transition duration-200"
-            style={{ fontFamily: 'PP Editorial, serif' }}
-          >
-            {item.title}
-          </h2>
-          <p className="text-black/60 dark:text-white/60 text-base leading-relaxed line-clamp-4">
-            {item.content}
-          </p>
-        </div>
-        <div className="relative w-80 h-full overflow-hidden rounded-2xl flex-shrink-0">
-          <img
-            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-            src={
-              new URL(item.thumbnail).origin +
-              new URL(item.thumbnail).pathname +
-              `?id=${new URL(item.thumbnail).searchParams.get('id')}`
-            }
-            alt={item.title}
-          />
-        </div>
-      </>
-    )}
-  </Link>
-);
+}) => {
+  const imgSrc = (() => {
+    try {
+      const u = new URL(item.thumbnail);
+      return u.origin + u.pathname + `?id=${u.searchParams.get('id')}`;
+    } catch {
+      return item.thumbnail;
+    }
+  })();
+
+  return (
+    <Link
+      href={`/?q=Summary: ${item.url}`}
+      className="w-full group flex flex-row items-stretch gap-6 h-56 py-2"
+      target="_blank"
+    >
+      {isLeft ? (
+        <>
+          <div className="relative w-72 h-full overflow-hidden rounded-2xl flex-shrink-0 bg-black/[0.03] dark:bg-white/[0.03]">
+            <img
+              className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+              src={imgSrc}
+              alt={item.title}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+          <div className="flex flex-col justify-center flex-1 py-2">
+            <h2
+              className="text-2xl font-normal mb-2.5 leading-snug line-clamp-3 text-black/85 dark:text-white/85 group-hover:text-bokari-600 dark:group-hover:text-bokari-400 transition-colors duration-300"
+              style={{ fontFamily: 'Instrument Serif, Georgia, serif' }}
+            >
+              {item.title}
+            </h2>
+            <p className="text-black/45 dark:text-white/40 text-sm leading-relaxed line-clamp-3">
+              {item.content}
+            </p>
+            <div className="mt-3 flex items-center gap-1.5 text-bokari-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="text-xs font-medium">Lire avec Bokari</span>
+              <ArrowUpRight size={12} />
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="flex flex-col justify-center flex-1 py-2">
+            <h2
+              className="text-2xl font-normal mb-2.5 leading-snug line-clamp-3 text-black/85 dark:text-white/85 group-hover:text-bokari-600 dark:group-hover:text-bokari-400 transition-colors duration-300"
+              style={{ fontFamily: 'Instrument Serif, Georgia, serif' }}
+            >
+              {item.title}
+            </h2>
+            <p className="text-black/45 dark:text-white/40 text-sm leading-relaxed line-clamp-3">
+              {item.content}
+            </p>
+            <div className="mt-3 flex items-center gap-1.5 text-bokari-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <span className="text-xs font-medium">Lire avec Bokari</span>
+              <ArrowUpRight size={12} />
+            </div>
+          </div>
+          <div className="relative w-72 h-full overflow-hidden rounded-2xl flex-shrink-0 bg-black/[0.03] dark:bg-white/[0.03]">
+            <img
+              className="object-cover w-full h-full group-hover:scale-[1.03] transition-transform duration-500"
+              src={imgSrc}
+              alt={item.title}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          </div>
+        </>
+      )}
+    </Link>
+  );
+};
 
 export default MajorNewsCard;

@@ -2,130 +2,240 @@
 
 import { cn } from '@/lib/utils';
 import {
-  BookOpenText,
-  Home,
   Search,
-  SquarePen,
-  Settings,
+  Compass,
+  BookOpenText,
   Plus,
-  ArrowLeft,
+  LogIn,
+  LogOut,
+  Settings,
+  PanelLeftClose,
+  PanelLeft,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useSelectedLayoutSegments } from 'next/navigation';
-import React, { useState, type ReactNode } from 'react';
+import React, { useState } from 'react';
 import Layout from './Layout';
-import {
-  Description,
-  Dialog,
-  DialogPanel,
-  DialogTitle,
-} from '@headlessui/react';
 import SettingsButton from './Settings/SettingsButton';
-
-const VerticalIconContainer = ({ children }: { children: ReactNode }) => {
-  return <div className="flex flex-col items-center w-full">{children}</div>;
-};
+import { useAuth } from '@/lib/hooks/useAuth';
 
 const Sidebar = ({ children }: { children: React.ReactNode }) => {
   const segments = useSelectedLayoutSegments();
-  const [isOpen, setIsOpen] = useState<boolean>(true);
+  const { user, loading: authLoading, setShowAuthModal, logout } = useAuth();
+  const [collapsed, setCollapsed] = useState(false);
 
   const navLinks = [
     {
-      icon: Home,
+      icon: Search,
       href: '/',
       active: segments.length === 0 || segments.includes('c'),
-      label: 'Home',
+      label: 'Recherche',
     },
     {
-      icon: Search,
+      icon: Compass,
       href: '/discover',
       active: segments.includes('discover'),
-      label: 'Discover',
+      label: 'Decouvrir',
     },
     {
       icon: BookOpenText,
       href: '/library',
       active: segments.includes('library'),
-      label: 'Library',
+      label: 'Bibliotheque',
     },
   ];
 
   return (
-    <div>
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-[72px] lg:flex-col border-r border-light-200 dark:border-dark-200">
-        <div className="flex grow flex-col items-center justify-between gap-y-5 overflow-y-auto bg-light-secondary dark:bg-dark-secondary px-2 py-8 shadow-sm shadow-light-200/10 dark:shadow-black/25">
-          <a
-            className="p-2.5 rounded-full bg-light-200 text-black/70 dark:bg-dark-200 dark:text-white/70 hover:opacity-70 hover:scale-105 tansition duration-200"
+    <div className="h-screen flex overflow-hidden">
+      {/* Desktop sidebar */}
+      <aside
+        className={cn(
+          'hidden lg:flex flex-col h-full flex-shrink-0 bg-light-100 dark:bg-dark-50 border-r border-black/[0.06] dark:border-white/[0.06] transition-all duration-300',
+          collapsed ? 'w-[68px]' : 'w-[240px]',
+        )}
+      >
+        {/* Header: Logo + Collapse */}
+        <div className={cn('h-14 flex items-center justify-between', collapsed ? 'px-3' : 'px-4')}>
+          <Link href="/" className="flex items-center gap-2.5 group">
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-bokari-400 to-bokari-600 flex items-center justify-center shadow-sm flex-shrink-0">
+              <span className="text-white text-sm font-bold" style={{ fontFamily: 'Instrument Serif, serif' }}>B</span>
+            </div>
+            {!collapsed && (
+              <span
+                className="text-[17px] text-black/90 dark:text-white/90 tracking-tight"
+                style={{ fontFamily: 'Instrument Serif, serif', fontStyle: 'italic' }}
+              >
+                Bokari
+              </span>
+            )}
+          </Link>
+          {!collapsed && (
+            <button
+              onClick={() => setCollapsed(true)}
+              className="p-1.5 rounded-lg text-black/30 dark:text-white/30 hover:text-black/60 dark:hover:text-white/60 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors"
+            >
+              <PanelLeftClose size={16} />
+            </button>
+          )}
+        </div>
+
+        {/* New thread */}
+        <div className={cn('pb-3', collapsed ? 'px-3' : 'px-3')}>
+          <Link
             href="/"
+            className={cn(
+              'flex items-center gap-2.5 rounded-xl border border-black/[0.08] dark:border-white/[0.08] transition-all duration-200 group hover:border-bokari-500/30 hover:bg-bokari-500/[0.03]',
+              collapsed ? 'justify-center p-2.5' : 'px-3 py-2.5',
+            )}
           >
-            <Plus size={19} className="cursor-pointer" />
-          </a>
-          <VerticalIconContainer>
-            {navLinks.map((link, i) => (
-              <Link
-                key={i}
-                href={link.href}
+            <Plus size={16} className="text-black/50 dark:text-white/50 group-hover:text-bokari-500 transition-colors flex-shrink-0" />
+            {!collapsed && (
+              <span className="text-[13px] text-black/60 dark:text-white/50 group-hover:text-black/80 dark:group-hover:text-white/70 transition-colors">
+                Nouveau fil
+              </span>
+            )}
+          </Link>
+        </div>
+
+        {/* Navigation */}
+        <nav className={cn('flex-1 space-y-0.5 overflow-y-auto overflow-hidden-scrollable', collapsed ? 'px-2' : 'px-2')}>
+          {navLinks.map((link, i) => (
+            <Link
+              key={i}
+              href={link.href}
+              className={cn(
+                'flex items-center gap-3 rounded-xl transition-all duration-200',
+                collapsed ? 'justify-center p-2.5' : 'px-3 py-2.5',
+                link.active
+                  ? 'bg-black/[0.05] dark:bg-white/[0.06] text-black dark:text-white'
+                  : 'text-black/50 dark:text-white/40 hover:text-black/80 dark:hover:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.03]',
+              )}
+              title={collapsed ? link.label : undefined}
+            >
+              <link.icon size={18} strokeWidth={link.active ? 2 : 1.5} className="flex-shrink-0" />
+              {!collapsed && (
+                <span className={cn('text-[13px]', link.active ? 'font-medium' : 'font-normal')}>
+                  {link.label}
+                </span>
+              )}
+            </Link>
+          ))}
+        </nav>
+
+        {/* Bottom */}
+        <div className={cn('pb-3 pt-2 border-t border-black/[0.06] dark:border-white/[0.06] space-y-0.5', collapsed ? 'px-2' : 'px-2')}>
+          {collapsed && (
+            <button
+              onClick={() => setCollapsed(false)}
+              className="w-full flex items-center justify-center p-2.5 rounded-xl text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/60 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-colors"
+            >
+              <PanelLeft size={18} />
+            </button>
+          )}
+
+          {!authLoading && (
+            user ? (
+              <div className={cn('flex items-center rounded-xl', collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5')}>
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-bokari-400 to-bokari-600 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-[11px] font-semibold">
+                    {user.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                {!collapsed && (
+                  <>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-black/80 dark:text-white/80 font-medium truncate">
+                        {user.name}
+                      </p>
+                      <p className="text-[10px] text-black/35 dark:text-white/30 truncate">
+                        {user.plan === 'free' ? 'Plan Gratuit' : user.plan === 'pro' ? 'Plan Pro' : 'Enterprise'}
+                      </p>
+                    </div>
+                    <button
+                      onClick={logout}
+                      className="p-1.5 rounded-lg text-black/25 dark:text-white/25 hover:text-red-500 hover:bg-red-500/5 transition-colors"
+                      title="Se deconnecter"
+                    >
+                      <LogOut size={14} />
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowAuthModal(true)}
                 className={cn(
-                  'relative flex flex-col items-center justify-center space-y-0.5 cursor-pointer w-full py-2 rounded-lg',
-                  link.active
-                    ? 'text-black/70 dark:text-white/70 '
-                    : 'text-black/60 dark:text-white/60',
+                  'w-full flex items-center rounded-xl text-black/50 dark:text-white/40 hover:text-black/80 dark:hover:text-white/70 hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all',
+                  collapsed ? 'justify-center p-2.5' : 'gap-3 px-3 py-2.5',
                 )}
               >
-                <div
-                  className={cn(
-                    link.active && 'bg-light-200 dark:bg-dark-200',
-                    'group rounded-lg hover:bg-light-200 hover:dark:bg-dark-200 transition duration-200',
-                  )}
-                >
-                  <link.icon
-                    size={25}
-                    className={cn(
-                      !link.active && 'group-hover:scale-105',
-                      'transition duration:200 m-1.5',
-                    )}
-                  />
-                </div>
-                <p
-                  className={cn(
-                    link.active
-                      ? 'text-black/80 dark:text-white/80'
-                      : 'text-black/60 dark:text-white/60',
-                    'text-[10px]',
-                  )}
-                >
-                  {link.label}
-                </p>
-              </Link>
-            ))}
-          </VerticalIconContainer>
+                <LogIn size={18} strokeWidth={1.5} className="flex-shrink-0" />
+                {!collapsed && <span className="text-[13px]">Se connecter</span>}
+              </button>
+            )
+          )}
+          {!collapsed && <SettingsButton />}
+        </div>
+      </aside>
 
-          <SettingsButton />
+      {/* Mobile header */}
+      <div className="lg:hidden fixed top-0 w-full z-50 h-14 flex items-center justify-between px-4 bg-light-primary/90 dark:bg-dark-primary/90 backdrop-blur-xl border-b border-black/[0.06] dark:border-white/[0.06]">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-bokari-400 to-bokari-600 flex items-center justify-center shadow-sm">
+            <span className="text-white text-sm font-bold" style={{ fontFamily: 'Instrument Serif, serif' }}>B</span>
+          </div>
+          <span
+            className="text-[15px] text-black/80 dark:text-white/80"
+            style={{ fontFamily: 'Instrument Serif, serif', fontStyle: 'italic' }}
+          >
+            Bokari
+          </span>
+        </Link>
+        <div className="flex items-center gap-1.5">
+          {!authLoading && !user && (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="text-bokari-600 dark:text-bokari-400 text-xs font-medium px-3.5 py-1.5 rounded-full bg-bokari-500/8 dark:bg-bokari-500/10 hover:bg-bokari-500/12 transition-colors"
+            >
+              Connexion
+            </button>
+          )}
+          {!authLoading && user && (
+            <div className="w-7 h-7 rounded-full bg-gradient-to-br from-bokari-400 to-bokari-600 flex items-center justify-center">
+              <span className="text-white text-[11px] font-semibold">
+                {user.name.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <Link
+            href="/"
+            className="p-2 rounded-xl text-black/40 dark:text-white/40 hover:text-black/70 dark:hover:text-white/60 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors"
+          >
+            <Plus size={20} />
+          </Link>
         </div>
       </div>
 
-      <div className="fixed bottom-0 w-full z-50 flex flex-row items-center gap-x-6 bg-light-secondary dark:bg-dark-secondary px-4 py-4 shadow-sm lg:hidden">
+      {/* Mobile bottom nav */}
+      <div className="fixed bottom-0 w-full z-50 flex items-center justify-around bg-light-primary/90 dark:bg-dark-primary/90 backdrop-blur-xl px-2 py-2 lg:hidden border-t border-black/[0.06] dark:border-white/[0.06] safe-area-bottom">
         {navLinks.map((link, i) => (
           <Link
             href={link.href}
             key={i}
             className={cn(
-              'relative flex flex-col items-center space-y-1 text-center w-full',
+              'flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl transition-all',
               link.active
-                ? 'text-black dark:text-white'
-                : 'text-black dark:text-white/70',
+                ? 'text-bokari-500'
+                : 'text-black/35 dark:text-white/35',
             )}
           >
-            {link.active && (
-              <div className="absolute top-0 -mt-4 h-1 w-full rounded-b-lg bg-black dark:bg-white" />
-            )}
-            <link.icon />
-            <p className="text-xs">{link.label}</p>
+            <link.icon size={20} strokeWidth={link.active ? 2 : 1.5} />
+            <span className="text-[10px] font-medium">{link.label}</span>
           </Link>
         ))}
       </div>
 
+      {/* Main content */}
       <Layout>{children}</Layout>
     </div>
   );

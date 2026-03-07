@@ -1,5 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
-import { PlayCircle, PlayIcon, PlusIcon, VideoIcon } from 'lucide-react';
+import { PlayCircle, PlusIcon, VideoIcon } from 'lucide-react';
 import { useRef, useState } from 'react';
 import Lightbox, { GenericSlide, VideoSlide } from 'yet-another-react-lightbox';
 import 'yet-another-react-lightbox/styles.css';
@@ -83,28 +83,28 @@ const Searchvideos = ({
             );
             setLoading(false);
           }}
-          className="border border-dashed border-light-200 dark:border-dark-200 hover:bg-light-200 dark:hover:bg-dark-200 active:scale-95 duration-200 transition px-4 py-2 flex flex-row items-center justify-between rounded-lg dark:text-white text-sm w-full"
+          className="border border-dashed border-black/[0.08] dark:border-white/[0.06] hover:border-black/[0.12] dark:hover:border-white/[0.1] hover:bg-black/[0.02] dark:hover:bg-white/[0.02] active:scale-[0.98] duration-200 transition px-4 py-2.5 flex items-center justify-between rounded-xl text-sm w-full"
         >
-          <div className="flex flex-row items-center space-x-2">
-            <VideoIcon size={17} />
-            <p>Search videos</p>
+          <div className="flex items-center gap-2 text-black/50 dark:text-white/40">
+            <VideoIcon size={16} />
+            <span className="text-[13px]">Videos</span>
           </div>
-          <PlusIcon className="text-[#24A0ED]" size={17} />
+          <PlusIcon className="text-bokari-500" size={16} />
         </button>
       )}
       {loading && (
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-1.5">
           {[...Array(4)].map((_, i) => (
             <div
               key={i}
-              className="bg-light-secondary dark:bg-dark-secondary h-32 w-full rounded-lg animate-pulse aspect-video object-cover"
+              className="h-24 w-full rounded-xl bokari-shimmer aspect-video"
             />
           ))}
         </div>
       )}
       {videos !== null && videos.length > 0 && (
         <>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
             {videos.length > 4
               ? videos.slice(0, 3).map((video, i) => (
                   <div
@@ -116,17 +116,18 @@ const Searchvideos = ({
                         ...slides.slice(i + 1),
                       ]);
                     }}
-                    className="relative transition duration-200 active:scale-95 hover:scale-[1.02] cursor-pointer"
+                    className="relative transition-all duration-200 hover:opacity-90 cursor-pointer rounded-xl overflow-hidden"
                     key={i}
                   >
                     <img
                       src={video.img_src}
                       alt={video.title}
-                      className="relative h-full w-full aspect-video object-cover rounded-lg"
+                      className="h-full w-full aspect-video object-cover"
                     />
-                    <div className="absolute bg-white/70 dark:bg-black/70 text-black/70 dark:text-white/70 px-2 py-1 flex flex-row items-center space-x-1 bottom-1 right-1 rounded-md">
-                      <PlayCircle size={15} />
-                      <p className="text-xs">Video</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    <div className="absolute bottom-1.5 right-1.5 bg-black/50 backdrop-blur-sm text-white/80 px-1.5 py-0.5 flex items-center gap-1 rounded-md">
+                      <PlayCircle size={11} />
+                      <span className="text-[10px]">Video</span>
                     </div>
                   </div>
                 ))
@@ -140,38 +141,39 @@ const Searchvideos = ({
                         ...slides.slice(i + 1),
                       ]);
                     }}
-                    className="relative transition duration-200 active:scale-95 hover:scale-[1.02] cursor-pointer"
+                    className="relative transition-all duration-200 hover:opacity-90 cursor-pointer rounded-xl overflow-hidden"
                     key={i}
                   >
                     <img
                       src={video.img_src}
                       alt={video.title}
-                      className="relative h-full w-full aspect-video object-cover rounded-lg"
+                      className="h-full w-full aspect-video object-cover"
                     />
-                    <div className="absolute bg-white/70 dark:bg-black/70 text-black/70 dark:text-white/70 px-2 py-1 flex flex-row items-center space-x-1 bottom-1 right-1 rounded-md">
-                      <PlayCircle size={15} />
-                      <p className="text-xs">Video</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent" />
+                    <div className="absolute bottom-1.5 right-1.5 bg-black/50 backdrop-blur-sm text-white/80 px-1.5 py-0.5 flex items-center gap-1 rounded-md">
+                      <PlayCircle size={11} />
+                      <span className="text-[10px]">Video</span>
                     </div>
                   </div>
                 ))}
             {videos.length > 4 && (
               <button
                 onClick={() => setOpen(true)}
-                className="bg-light-100 hover:bg-light-200 dark:bg-dark-100 dark:hover:bg-dark-200 transition duration-200 active:scale-95 hover:scale-[1.02] h-auto w-full rounded-lg flex flex-col justify-between text-white p-2"
+                className="bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.05] dark:hover:bg-white/[0.05] transition-all duration-200 h-auto w-full rounded-xl flex flex-col justify-between p-2.5 gap-2"
               >
-                <div className="flex flex-row items-center space-x-1">
+                <div className="flex items-center -space-x-1">
                   {videos.slice(3, 6).map((video, i) => (
                     <img
                       key={i}
                       src={video.img_src}
                       alt={video.title}
-                      className="h-6 w-12 rounded-md lg:h-3 lg:w-6 lg:rounded-sm aspect-video object-cover"
+                      className="h-5 w-10 rounded-md aspect-video object-cover border-2 border-white dark:border-dark-200"
                     />
                   ))}
                 </div>
-                <p className="text-black/70 dark:text-white/70 text-xs">
-                  View {videos.length - 3} more
-                </p>
+                <span className="text-black/40 dark:text-white/35 text-[11px]">
+                  +{videos.length - 3} videos
+                </span>
               </button>
             )}
           </div>
@@ -197,7 +199,7 @@ const Searchvideos = ({
               slide: ({ slide }) => {
                 const index = slides.findIndex((s) => s === slide);
                 return slide.type === 'video-slide' ? (
-                  <div className="h-full w-full flex flex-row items-center justify-center">
+                  <div className="h-full w-full flex items-center justify-center">
                     <iframe
                       src={`${slide.iframe_src}${slide.iframe_src.includes('?') ? '&' : '?'}enablejsapi=1`}
                       ref={(el) => {
